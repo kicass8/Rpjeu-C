@@ -5,7 +5,7 @@
 #ifndef PROJET_C_RPG_H
 #define PROJET_C_RPG_H
 
-//Item structure, all values should be either -1 (used to indicate that this item does not possess such characteristic) or a positive value. (if id == -1 then the item is a placeholder space)
+//Item structure, all values should be either -1 (used to indicate that this item does not possess such characteristic) or a positive value.
 struct Item {
     int id;
     int damage;
