@@ -67,6 +67,7 @@ PNJ* newPNJ();
 Monster* newMonster(char* name, int id, int HP, int attack, int expDrop);
 Item* newItem(int id, int damage, int durability, int quantity, float protection, int heal);
 void addToPlayerInventory(Player* player, Item* item);
+void addToPNJInventory(PNJ* pnj, Item* item);
 Player* initPlayer();
 
 #endif //PROJET_C_RPG_H
