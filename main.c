@@ -88,6 +88,29 @@ Player* initPlayer(){
     return player;
 }
 
+int** initMap(int width, int height, int level)
+{
+    //creation of the map
+    int** map = (int**) malloc(sizeof(int*)*height);
+    for(int i=0 ; i<height ; i++){
+        *(map+i)= (int*)malloc(sizeof(int)*width);
+        for(int j=0 ; j<width ; j++){
+            map[i][j]=0;
+        }
+    }
+    return(map);
+}
+
+void displayMap(int** map,int width, int height)
+{
+    printf("\n");
+    for(int i=0 ;i<height ; i++){
+        for(int j=0 ; j<width ; j++){
+            printf(" %d ",map[i][j]);
+        }
+        printf("\n");
+    }
+}
 int main() {
     Player* player = initPlayer();
 
@@ -108,6 +131,10 @@ int main() {
         printf("PNJ1's inventory : id: %d, damage: %d, durability: %d\n", pnj1->inventory[i].id, pnj1->inventory[i].damage, pnj1->inventory[i].durability);
     }
 
+    //test map
+    displayMap(initMap(5,5,1),5,5);
+    printf("\n\n");
+
     //Test for the linked list of things to respawn (NOT_WORKING)
     thingToRespawn* thingsToRespawn = malloc(sizeof(thingToRespawn) * 100);
     thingsToRespawn = addToRespawnList(thingsToRespawn, 3, 1, 1, 1,10);
@@ -115,4 +142,5 @@ int main() {
         printf("Thing -> type : %d, coordinates : {%d, %d} , map : %d, in how many turns : %d\n", thingsToRespawn->type, thingsToRespawn->x, thingsToRespawn->y, thingsToRespawn->map, thingsToRespawn->turnsUntilRespawn);
         thingsToRespawn = thingsToRespawn->next;
     }
+
 }

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-C:/Users/kicas/Documents/Travail/Projet C/Rpjeu-C/main.c
+/cygdrive/c/Users/Titan/CLionProjects/Rpjeu-C/main.c
 stdio.h
 -
 stdlib.h
@@ -14,7 +14,7 @@ stdlib.h
 string.h
 -
 rpg.h
-C:/Users/kicas/Documents/Travail/Projet C/Rpjeu-C/rpg.h
+/cygdrive/c/Users/Titan/CLionProjects/Rpjeu-C/rpg.h
 
-C:/Users/kicas/Documents/Travail/Projet C/Rpjeu-C/rpg.h
+/cygdrive/c/Users/Titan/CLionProjects/Rpjeu-C/rpg.h
 
