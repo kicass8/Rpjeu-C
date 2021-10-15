@@ -111,6 +111,42 @@ void displayMap(int** map,int width, int height)
         printf("\n");
     }
 }
+//Creates elements of the map
+mapElement* newMapElement(int id, char* name)
+{
+    mapElement* element = malloc(sizeof(mapElement));
+
+    element->id = id;
+    element->name = name;
+
+    return element;
+}
+
+
+//updating the map
+int** updateMap(int** map, Player* player, mapElement* element,int x, int y)
+{
+    for(int i=0 ; i<(sizeof(map)/sizeof(map[0])) ; i++)
+    {
+        for(int j=0 ; j<(sizeof(map)/sizeof(map[0])) ; j++)
+        {
+            if((x==i)&&(y==j))
+            {
+                if(player==NULL)
+                {
+                    map[i][j] = element->id;
+                }
+                else if (element==NULL)
+                {
+                    map[i][j] = 1;
+                }
+            }
+        }
+    }
+
+    return(map);
+}
+
 int main() {
     Player* player = initPlayer();
 
@@ -132,8 +168,21 @@ int main() {
     }
 
     //test map
-    displayMap(initMap(5,5,1),5,5);
+    //displayMap(initMap(5,5,1),5,5);
     printf("\n\n");
+
+    //test  = portail 3
+    mapElement* firstElement= newMapElement(-3, "Portail 3");
+    printf("\n%s : id : %d\n",firstElement->name,firstElement->id);
+
+    //update map with element on a position
+    int** theMap = initMap(10,10,2);
+    displayMap(theMap,10,10);
+    printf("\n\n");
+    int** theMap2 = updateMap(theMap,NULL,firstElement,5,5);
+    printf("Map après update :\n");
+    displayMap(theMap2,10,10);
+
 
     //Test for the linked list of things to respawn (NOT_WORKING)
     thingToRespawn* thingsToRespawn = malloc(sizeof(thingToRespawn) * 100);

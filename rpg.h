@@ -62,6 +62,13 @@ struct thingToRespawn {
 
 typedef struct thingToRespawn thingToRespawn;
 
+struct mapElement {
+    int id;
+    char* name;
+};
+
+typedef struct mapElement mapElement;
+
 thingToRespawn* addToRespawnList(thingToRespawn* list,int type, int x, int y, int map, int nbturns);
 PNJ* newPNJ();
 Monster* newMonster(char* name, int id, int HP, int attack, int expDrop);
@@ -71,5 +78,7 @@ void addToPNJInventory(PNJ* pnj, Item* item);
 Player* initPlayer();
 int** initMap(int width, int height, int level);
 void displayMap(int** map,int width, int height);
+mapElement* newMapElement(int id, char* name);
+int** updateMap(int** map, Player* player, mapElement* element,int x, int y);
 
 #endif //PROJET_C_RPG_H
