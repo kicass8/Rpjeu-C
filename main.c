@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "rpg.h"
 
 //Returns a pointer to an Item after initialising it with the given parameters.
@@ -88,7 +89,7 @@ Player* initPlayer(){
     return player;
 }
 
-int** initMap(int width, int height, int level)
+int** initMap(int width, int height)
 {
     //creation of the map
     int** map = (int**) malloc(sizeof(int*)*height);
@@ -126,21 +127,92 @@ mapElement* newMapElement(int id, char* name)
 //updating the map
 int** updateMap(int** map, Player* player, mapElement* element,int x, int y)
 {
-    for(int i=0 ; i<(sizeof(map)/sizeof(map[0])) ; i++)
+    if(player==NULL)
     {
-        for(int j=0 ; j<(sizeof(map)/sizeof(map[0])) ; j++)
+        //idElement on the map
+        map[x][y]=element->id;
+    }
+    else if(element==NULL)
+    {
+        map[x][y]=1;
+    }
+
+    return(map);
+}
+
+//building a map
+int** buildMap(int** map, int level)
+{
+    int x,y;
+    srand(time(NULL));
+
+    //monsters positions
+    int monsterPosition[10];
+    for(int i=0 ; i<10 ; i++)
+    {
+        x = rand()%98;
+        y = rand()%98;
+        updateMap(map, NULL, newMapElement(12,"Monster"),x,y);
+    }
+
+    //rocks positions
+    int rockPosition[3];
+    for(int i=0 ; i<3 ; i++)
+    {
+        x = rand()%98;
+        y = rand()%98;
+        if(level==1)
         {
-            if((x==i)&&(y==j))
-            {
-                if(player==NULL)
-                {
-                    map[i][j] = element->id;
-                }
-                else if (element==NULL)
-                {
-                    map[i][j] = 1;
-                }
-            }
+            updateMap(map, NULL, newMapElement(4,"Rock 1"),x,y);
+        }
+        else if(level==2)
+        {
+            updateMap(map, NULL, newMapElement(7,"Rock 2"),x,y);
+        }
+        else
+        {
+            updateMap(map, NULL, newMapElement(10,"Rock 3"),x,y);
+        }
+    }
+
+    //plants positions
+    int plantPosition[3];
+    for(int i=0 ; i<3 ; i++)
+    {
+        x = rand()%98;
+        y = rand()%98;
+        if(level==1)
+        {
+            updateMap(map, NULL, newMapElement(3,"Plant 1"),x,y);
+        }
+        else if(level==2)
+        {
+            updateMap(map, NULL, newMapElement(6,"Plant 2"),x,y);
+        }
+        else
+        {
+            updateMap(map, NULL, newMapElement(9,"Plant 3"),x,y);
+        }
+    }
+
+    //wood positions
+    int woodPosition[3];
+    for(int i=0 ; i<3 ; i++)
+    {
+        x = rand()%98;
+        y = rand()%98;
+
+        if(level==1)
+        {
+            updateMap(map, NULL, newMapElement(5,"Wood 1"),x,y);
+        }
+        else if(level==2)
+        {
+            updateMap(map, NULL, newMapElement(8,"Wood 2"),x,y);
+        }
+        else
+        {
+            updateMap(map, NULL, newMapElement(11,"Wood 3"),x,y);
         }
     }
 
@@ -176,13 +248,12 @@ int main() {
     printf("\n%s : id : %d\n",firstElement->name,firstElement->id);
 
     //update map with element on a position
-    int** theMap = initMap(10,10,2);
+    int** theMap = initMap(10,10);
     displayMap(theMap,10,10);
     printf("\n\n");
-    int** theMap2 = updateMap(theMap,NULL,firstElement,5,5);
+    int** theMap2 = buildMap(theMap,1);
     printf("Map après update :\n");
     displayMap(theMap2,10,10);
-
 
     //Test for the linked list of things to respawn (NOT_WORKING)
     thingToRespawn* thingsToRespawn = malloc(sizeof(thingToRespawn) * 100);

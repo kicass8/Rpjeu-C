@@ -13,6 +13,8 @@ stdlib.h
 -
 string.h
 -
+time.h
+-
 rpg.h
 /cygdrive/c/Users/Titan/CLionProjects/Rpjeu-C/rpg.h
 

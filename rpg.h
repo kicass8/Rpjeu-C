@@ -76,9 +76,10 @@ Item* newItem(int id, int damage, int durability, int quantity, float protection
 void addToPlayerInventory(Player* player, Item* item);
 void addToPNJInventory(PNJ* pnj, Item* item);
 Player* initPlayer();
-int** initMap(int width, int height, int level);
+int** initMap(int width, int height);
 void displayMap(int** map,int width, int height);
 mapElement* newMapElement(int id, char* name);
 int** updateMap(int** map, Player* player, mapElement* element,int x, int y);
+int** buildMap(int** map, int level);
 
 #endif //PROJET_C_RPG_H
