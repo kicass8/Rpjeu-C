@@ -81,5 +81,8 @@ void displayMap(int** map,int width, int height);
 mapElement* newMapElement(int id, char* name);
 int** updateMap(int** map, Player* player, mapElement* element,int x, int y);
 int** buildMap(int** map, int level);
+int findTool(Player* player, int ressource);
+int useTool(Player* player, int zone, int toolPosition);
+void getResourse(Player* player, int x, int y, int zone, int** map);
 
 #endif //PROJET_C_RPG_H

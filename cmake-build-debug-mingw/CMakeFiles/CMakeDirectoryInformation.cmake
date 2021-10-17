@@ -3,7 +3,7 @@
 
 # Relative path conversion top directories.
 set(CMAKE_RELATIVE_PATH_TOP_SOURCE "C:/Users/alexa/Desktop/Rpjeu-C")
-set(CMAKE_RELATIVE_PATH_TOP_BINARY "C:/Users/alexa/Desktop/Rpjeu-C/cmake-build-debug")
+set(CMAKE_RELATIVE_PATH_TOP_BINARY "C:/Users/alexa/Desktop/Rpjeu-C/cmake-build-debug-mingw")
 
 # Force unix paths in dependencies.
 set(CMAKE_FORCE_UNIX_PATHS 1)

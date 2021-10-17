@@ -7,4 +7,4 @@ C:\Users\alexa\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\212.5457.51\bin\c
 -- Detecting C compile features - done
 -- Configuring done
 -- Generating done
--- Build files have been written to: C:/Users/alexa/Desktop/Rpjeu-C/cmake-build-debug
+-- Build files have been written to: C:/Users/alexa/Desktop/Rpjeu-C/cmake-build-debug-mingw
