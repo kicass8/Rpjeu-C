@@ -220,90 +220,101 @@ int** buildMap(int** map, int level)
 }
 
 //Add the resource to the player inventory and change the position of the player if it's possible
-void getResourse(Player* player, int x, int y, int zone, int** map){
+int getResourse(Player* player,int resource, int** map){
     //  Check if the inventory is full
-    if(player->inventoryNextSpace >=  255) {
+    if(player->inventoryNextSpace >=  10) {
         printf("Inventory full ! The ressource will not be collected");
     }
-    int res = -1;
-    int randRessources = rand()% 4 + 1;
-    Item* item = malloc(sizeof(Item));
-    mapElement* Element = malloc(sizeof(Element));
-    switch (map[x][y]) {
-        case 3 :
-            res = useTool(player, zone, findTool(player, map[x][y]));
-            //  Verify if the player have the right tool in his inventory
-            if(res != -1) {
-                item = newItem(map[x][y], -1, -1, randRessources, -1, -1);// Create a new item with the ressource
-                addToPlayerInventory(player, item); // add it to the player inventory
-                map[x][y] = 0;  // switch the case of the resource on 0
-                updateMap(map, player, newMapElement(3, "Plant"), x, y ); // update the map ( dans newElementMap je pensais qu'il fallait mettre 0 )
-                buildMap(map, zone); // build the new map
-                displayMap(map, 10, 10); // display the new map
-            }
-            break;
-        case 4:
-            res = useTool(player, zone, findTool(player, map[x][y]));
-            if(res != -1) {
-                item = newItem(map[x][y], -1, -1, randRessources, -1, -1);
-                addToPlayerInventory(player, item);
-                map[x][y] = 0;
-                updateMap(map, player, newMapElement(4, "Rock"), x, y );
-                buildMap(map, zone);
-                displayMap(map, 10, 10);
-            }
-            break;
-        case 5 :
-            res = useTool(player, zone, findTool(player, map[x][y]));
-            if(res != -1) {
-                item = newItem(map[x][y], -1, -1, randRessources, -1, -1);
-                addToPlayerInventory(player, item);
-                map[x][y] = 0;
-                updateMap(map, player, newMapElement(5, "Wood"), x, y );
-                buildMap(map, zone);
-                displayMap(map, 10, 10);
-            }
-            break;
-        default:
-            break;
+    int res;
+
+    res = useTool(player, resource, findTool(player, resource));
+    if(res != -1) { // Look if the player have the tool or not
+        addResourseToInventory(resource, player);
+        return res;
+    } else {
+        printf("You don't have the right tool for that.");
+        return res;
     }
 }
 
 
+void addResourseToInventory(int resource, Player* player){
+    int randResources = rand()% 4 + 1;
+    Item* item = malloc(sizeof(Item));
+    item = newItem(resource, -1, -1, randResources, -1, -1);// Create a new item with the ressource
+    addToPlayerInventory(player, item); // add it to the player inventory
+
+}
+
 //  when the player use a tool the function decrease the durability of the tool
-int useTool(Player* player, int zone, int toolPosition){
+int useTool(Player* player, int resource, int toolPosition){
     if(toolPosition != -1) {
-        switch (zone) {
-            case 1 :
+        switch (resource) {
+            case 3 :
+            case 4 :
+            case 5 :
                 player->inventory[toolPosition].durability *= 0.10;
                 if (player->inventory[toolPosition].durability <= 0) {
                     //  player->inventory[toolPosition] = -1; // remove the tool from the inventory if the durability is equal to 0
                 }
                 return 1;
-            case 2:
+            case 6 :
+            case 7 :
+            case 8 :
                 player->inventory[toolPosition].durability *= 0.20;
                 if (player->inventory[toolPosition].durability <= 0) {
                     //  player->inventory[toolPosition] = -1;
                 }
                 return 1;
-            case 3 :
+            case 9 :
+            case 10 :
+            case 11 :
                 player->inventory[toolPosition].durability *= 0.40;
                 if (player->inventory[toolPosition].durability <= 0) {
                     //  player->inventory[toolPosition] = -1;
                 }
                 return 1;
             default:
-                break;
+                return -1;
         }
     }
-    return -1;
+}
+
+int findLowerDurabilityTool(Player* player, int resource){
+
+}
+
+int findPlantTool(Player* player, int resource){
+    int toolPosition = -1;
+    switch (resource) {
+        case 3:
+        case 6:
+        case 9:
+
+            for(int i = 0; i < player->inventoryNextSpace; i++){
+                if(player->inventory[i].id == 24){
+                    toolPosition = i;
+                    for(int j = i + 1; j < player->inventoryNextSpace; j++){
+                        if(player->inventory[i].id == 24 && player->inventory[j].id == 24){
+                            if(player->inventory[i].durability > player->inventory[j].durability){
+                                toolPosition = j;
+                            }
+                        }
+                    }
+                }
+            }
+        default:
+            break;
+    }
+    
+    return toolPosition;
 }
 
 // Return the position of the used tool if it exist else return -1
-int findTool(Player* player, int ressource){
+int findTool(Player* player, int resource){
     int toolPosition = -1;
     // Check each item to find a tool in the player inventory
-    switch (ressource) {
+    switch (resource) {
         case 3 :
             for (int i = 0; i < player->inventoryNextSpace; i++) {
                 // Check if the right tool is available
@@ -339,54 +350,7 @@ int findTool(Player* player, int ressource){
 
     return toolPosition;
 }
-/*
-int findAxe(Player* player, int ressource){
-    int toolPosition = -1;
-    if(ressource == 5) {
-        for (int i = 0; i < player->inventoryNextSpace; i++) {
-            // Check if the right tool is available
-            if (player->inventory[i].id == 4 || player->inventory[i].id == 14 || player->inventory[i].id == 25) {
-                // Check if the tool durability isn't equal to 0
-                if (player->inventory[i].durability != 0) {
-                    toolPosition = i;
-                }
-            }
-        }
-    }
-    return toolPosition;
-}
 
-int findPickaxe(Player* player, int ressource){
-    int toolPosition = -1;
-    if(ressource == 4) {
-        for (int i = 0; i < player->inventoryNextSpace; i++) {
-            // Check if the right tool is available
-            if (player->inventory[i].id == 2 || player->inventory[i].id == 12 || player->inventory[i].id == 23) {
-                // Check if the tool durability isn't equal to 0
-                if (player->inventory[i].durability != 0) {
-                    toolPosition = i;
-                }
-            }
-        }
-    }
-    return toolPosition;
-}
-
-int findBillhook(Player* player, int ressource){
-    int toolPosition = -1;
-    if(ressource == 3) {
-        for (int i = 0; i < player->inventoryNextSpace; i++) {
-            // Check if the right tool is available
-            if (player->inventory[i].id == 3 || player->inventory[i].id == 13 || player->inventory[i].id == 24) {
-                // Check if the tool durability isn't equal to 0
-                if (player->inventory[i].durability != 0) {
-                    toolPosition = i;
-                }
-            }
-            return toolPosition;
-}
-
-*/
 
 
 
