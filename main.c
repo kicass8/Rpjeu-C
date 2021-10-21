@@ -113,12 +113,11 @@ void displayMap(int** map,int width, int height)
     }
 }
 //Creates elements of the map
-mapElement* newMapElement(int id, char* name)
+mapElement* newMapElement(int id)
 {
     mapElement* element = malloc(sizeof(mapElement));
 
     element->id = id;
-    element->name = name;
 
     return element;
 }
@@ -144,75 +143,81 @@ int** updateMap(int** map, Player* player, mapElement* element,int x, int y)
 int** buildMap(int** map, int level)
 {
     int x,y;
-    srand(time(NULL));
+    //srand(time(NULL));
 
     //monsters positions
-    int monsterPosition[10];
     for(int i=0 ; i<10 ; i++)
     {
-        x = rand()%98;
-        y = rand()%98;
-        updateMap(map, NULL, newMapElement(12,"Monster"),x,y);
+        x = rand()%10+1;
+        y = rand()%10+1;
+        //updateMap(map, NULL, newMapElement(12),x,y);
+        map[x][y]=12;
     }
 
     //rocks positions
-    int rockPosition[3];
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%98;
-        y = rand()%98;
+        x = rand()%10+1;
+        y = rand()%10+1;
         if(level==1)
         {
-            updateMap(map, NULL, newMapElement(4,"Rock 1"),x,y);
+            //updateMap(map, NULL, newMapElement(4),x,y);
+            map[x][y]=4;
         }
         else if(level==2)
         {
-            updateMap(map, NULL, newMapElement(7,"Rock 2"),x,y);
+            //updateMap(map, NULL, newMapElement(7),x,y);
+            map[x][y]=7;
         }
         else
         {
-            updateMap(map, NULL, newMapElement(10,"Rock 3"),x,y);
+            //updateMap(map, NULL, newMapElement(10),x,y);
+            map[x][y]=10;
         }
     }
 
     //plants positions
-    int plantPosition[3];
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%98;
-        y = rand()%98;
+        x = rand()%10+1;
+        y = rand()%10+1;
         if(level==1)
         {
-            updateMap(map, NULL, newMapElement(3,"Plant 1"),x,y);
+            //updateMap(map, NULL, newMapElement(3),x,y);
+            map[x][y]=3;
         }
         else if(level==2)
         {
-            updateMap(map, NULL, newMapElement(6,"Plant 2"),x,y);
+            //updateMap(map, NULL, newMapElement(6),x,y);
+            map[x][y]=6;
         }
         else
         {
-            updateMap(map, NULL, newMapElement(9,"Plant 3"),x,y);
+            //updateMap(map, NULL, newMapElement(9),x,y);
+            map[x][y]=9;
         }
     }
 
     //wood positions
-    int woodPosition[3];
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%98;
-        y = rand()%98;
+        x = rand()%10+1;
+        y = rand()%10+1;
 
         if(level==1)
         {
-            updateMap(map, NULL, newMapElement(5,"Wood 1"),x,y);
+            //updateMap(map, NULL, newMapElement(5),x,y);
+            map[x][y]=5;
         }
         else if(level==2)
         {
-            updateMap(map, NULL, newMapElement(8,"Wood 2"),x,y);
+            //updateMap(map, NULL, newMapElement(8),x,y);
+            map[x][y]=8;
         }
         else
         {
-            updateMap(map, NULL, newMapElement(11,"Wood 3"),x,y);
+            //updateMap(map, NULL, newMapElement(11),x,y);
+            map[x][y]=11;
         }
     }
 
@@ -237,7 +242,7 @@ void getResourse(Player* player, int x, int y, int zone, int** map){
                 item = newItem(map[x][y], -1, -1, randRessources, -1, -1);// Create a new item with the ressource
                 addToPlayerInventory(player, item); // add it to the player inventory
                 map[x][y] = 0;  // switch the case of the resource on 0
-                updateMap(map, player, newMapElement(3, "Plant"), x, y ); // update the map ( dans newElementMap je pensais qu'il fallait mettre 0 )
+                updateMap(map, player, newMapElement(3), x, y ); // update the map ( dans newElementMap je pensais qu'il fallait mettre 0 )
                 buildMap(map, zone); // build the new map
                 displayMap(map, 10, 10); // display the new map
             }
@@ -248,7 +253,7 @@ void getResourse(Player* player, int x, int y, int zone, int** map){
                 item = newItem(map[x][y], -1, -1, randRessources, -1, -1);
                 addToPlayerInventory(player, item);
                 map[x][y] = 0;
-                updateMap(map, player, newMapElement(4, "Rock"), x, y );
+                updateMap(map, player, newMapElement(4), x, y );
                 buildMap(map, zone);
                 displayMap(map, 10, 10);
             }
@@ -259,7 +264,7 @@ void getResourse(Player* player, int x, int y, int zone, int** map){
                 item = newItem(map[x][y], -1, -1, randRessources, -1, -1);
                 addToPlayerInventory(player, item);
                 map[x][y] = 0;
-                updateMap(map, player, newMapElement(5, "Wood"), x, y );
+                updateMap(map, player, newMapElement(5), x, y );
                 buildMap(map, zone);
                 displayMap(map, 10, 10);
             }
@@ -388,7 +393,43 @@ int findBillhook(Player* player, int ressource){
 
 */
 
+void checkMapElement(int **map, Player* player, int x, int y){
+    int element = map[x][y]; //element stored in the player's future position
+    int newPosition[2] = {x,y};
 
+    switch(element){
+        case -3 : //third zone's portal
+            break;
+        case -2 : //second zone's portal
+            break;
+        case -1 : //first zone's portal
+            break;
+        case 0 : //change player's position
+            player->position = newPosition;
+            break;
+        case 2 : //interact with PNJ
+            //instructions
+            break;
+        case 3 :
+        case 4 :
+        case 5 :
+        case 6 :
+        case 7 :
+        case 8 :
+        case 9 :
+        case 10 :
+        case 11 :
+            //getResourse(player, x, y,1,map);
+            //addToRespawnList();
+            break;
+        case 99 :
+            //engage fight with boss
+            break;
+        default:
+            //engage fight with monster
+            break;
+    }
+}
 
 
 int main() {
@@ -416,16 +457,20 @@ int main() {
     printf("\n\n");
 
     //test  = portail 3
-    mapElement* firstElement= newMapElement(-3, "Portail 3");
-    printf("\n%s : id : %d\n",firstElement->name,firstElement->id);
+    mapElement* firstElement= newMapElement(-3);
+    printf("\nid : %d\n",firstElement->id);
 
     //update map with element on a position
     int** theMap = initMap(10,10);
     displayMap(theMap,10,10);
     printf("\n\n");
     int** theMap2 = buildMap(theMap,1);
+
+    //updateMap(theMap,NULL,firstElement,5,3);
     printf("Map après update :\n");
     displayMap(theMap2,10,10);
+
+    checkMapElement(theMap,player,5,3);
 
     //Test for the linked list of things to respawn (NOT_WORKING)
     thingToRespawn* thingsToRespawn = malloc(sizeof(thingToRespawn) * 100);
