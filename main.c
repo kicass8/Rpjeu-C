@@ -113,12 +113,11 @@ void displayMap(int** map,int width, int height)
     }
 }
 //Creates elements of the map
-mapElement* newMapElement(int id, char* name)
+mapElement* newMapElement(int id)
 {
     mapElement* element = malloc(sizeof(mapElement));
 
     element->id = id;
-    element->name = name;
 
     return element;
 }
@@ -144,75 +143,81 @@ int** updateMap(int** map, Player* player, mapElement* element,int x, int y)
 int** buildMap(int** map, int level)
 {
     int x,y;
-    srand(time(NULL));
+    //srand(time(NULL));
 
     //monsters positions
-    int monsterPosition[10];
     for(int i=0 ; i<10 ; i++)
     {
-        x = rand()%98;
-        y = rand()%98;
-        updateMap(map, NULL, newMapElement(12,"Monster"),x,y);
+        x = rand()%10+1;
+        y = rand()%10+1;
+        //updateMap(map, NULL, newMapElement(12),x,y);
+        map[x][y]=12;
     }
 
     //rocks positions
-    int rockPosition[3];
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%98;
-        y = rand()%98;
+        x = rand()%10+1;
+        y = rand()%10+1;
         if(level==1)
         {
-            updateMap(map, NULL, newMapElement(4,"Rock 1"),x,y);
+            //updateMap(map, NULL, newMapElement(4),x,y);
+            map[x][y]=4;
         }
         else if(level==2)
         {
-            updateMap(map, NULL, newMapElement(7,"Rock 2"),x,y);
+            //updateMap(map, NULL, newMapElement(7),x,y);
+            map[x][y]=7;
         }
         else
         {
-            updateMap(map, NULL, newMapElement(10,"Rock 3"),x,y);
+            //updateMap(map, NULL, newMapElement(10),x,y);
+            map[x][y]=10;
         }
     }
 
     //plants positions
-    int plantPosition[3];
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%98;
-        y = rand()%98;
+        x = rand()%10+1;
+        y = rand()%10+1;
         if(level==1)
         {
-            updateMap(map, NULL, newMapElement(3,"Plant 1"),x,y);
+            //updateMap(map, NULL, newMapElement(3),x,y);
+            map[x][y]=3;
         }
         else if(level==2)
         {
-            updateMap(map, NULL, newMapElement(6,"Plant 2"),x,y);
+            //updateMap(map, NULL, newMapElement(6),x,y);
+            map[x][y]=6;
         }
         else
         {
-            updateMap(map, NULL, newMapElement(9,"Plant 3"),x,y);
+            //updateMap(map, NULL, newMapElement(9),x,y);
+            map[x][y]=9;
         }
     }
 
     //wood positions
-    int woodPosition[3];
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%98;
-        y = rand()%98;
+        x = rand()%10+1;
+        y = rand()%10+1;
 
         if(level==1)
         {
-            updateMap(map, NULL, newMapElement(5,"Wood 1"),x,y);
+            //updateMap(map, NULL, newMapElement(5),x,y);
+            map[x][y]=5;
         }
         else if(level==2)
         {
-            updateMap(map, NULL, newMapElement(8,"Wood 2"),x,y);
+            //updateMap(map, NULL, newMapElement(8),x,y);
+            map[x][y]=8;
         }
         else
         {
-            updateMap(map, NULL, newMapElement(11,"Wood 3"),x,y);
+            //updateMap(map, NULL, newMapElement(11),x,y);
+            map[x][y]=11;
         }
     }
 
@@ -220,24 +225,26 @@ int** buildMap(int** map, int level)
 }
 
 //Add the resource to the player inventory and change the position of the player if it's possible
-int getResourse(Player* player,int resource, int** map){
+int getResourse(Player* player,int resource, int** map) {
     //  Check if the inventory is full
-    if(player->inventoryNextSpace >=  10) {
+    if (player->inventoryNextSpace >= 10) {
         printf("Inventory full ! The ressource will not be collected");
     }
     int res;
 
     res = useTool(player, resource, findTool(player, resource));
-    if(res != -1) { // Look if the player have the tool or not
+    if (res != -1) { // Look if the player have the tool or not
         addResourseToInventory(resource, player);
         return res;
     } else {
         printf("You don't have the right tool for that.");
         return res;
+
+
     }
 }
 
-
+// Add random resource to the player inventory
 void addResourseToInventory(int resource, Player* player){
     int randResources = rand()% 4 + 1;
     Item* item = malloc(sizeof(Item));
@@ -280,29 +287,73 @@ int useTool(Player* player, int resource, int toolPosition){
     }
 }
 
+// Voir comment faire pour chercher la plus petite durablitité PAS SUR DU TOUT
 int findLowerDurabilityTool(Player* player, int resource){
 
+}
+
+int findPlantToolZone3(Player* player){
+    int toolPosition = -1;
+    for(int i = 0; i < player->inventoryNextSpace; i++){
+        if(player->inventory[i].id == 24){
+            toolPosition = i;
+            for(int j = i + 1; j < player->inventoryNextSpace; j++){
+                if(player->inventory[i].id == 24 && player->inventory[j].id == 24){
+                    if(player->inventory[i].durability > player->inventory[j].durability){
+                        toolPosition = j;
+                    }
+                }
+            }
+        }
+    }
+    return toolPosition;
+}
+
+int findPlantToolZone2(Player* player){
+    int toolPosition = -1;
+    for(int i = 0; i < player->inventoryNextSpace; i++){
+        if(player->inventory[i].id == 13 || player->inventory[i].id == 24){
+            toolPosition = i;
+            for(int j = i + 1; j < player->inventoryNextSpace; j++){
+                if(player->inventory[i].id == 24 || player->inventory[i].id == 13 && player->inventory[j].id == 24 || player->inventory[j].id == 13){
+                    if(player->inventory[i].durability > player->inventory[j].durability){
+                        toolPosition = j;
+                    }
+                }
+            }
+        }
+    }
+    return toolPosition;
+}
+
+int findPlantToolZone1(Player* player){
+    int toolPosition = -1;
+    for(int i = 0; i < player->inventoryNextSpace; i++){
+        if(player->inventory[i].id == 13 || player->inventory[i].id == 24){
+            toolPosition = i;
+            for(int j = i + 1; j < player->inventoryNextSpace; j++){
+                if(player->inventory[i].id == 24 || player->inventory[i].id == 13 || player->inventory[i].id == 3 && player->inventory[j].id == 24 || player->inventory[j].id == 13 player->inventory[j].id == 3){
+                    if(player->inventory[i].durability > player->inventory[j].durability){
+                        toolPosition = j;
+                    }
+                }
+            }
+        }
+    }
+    return toolPosition;
 }
 
 int findPlantTool(Player* player, int resource){
     int toolPosition = -1;
     switch (resource) {
         case 3:
+            toolPosition = findPlantToolZone1(player);
+            break;
         case 6:
+            toolPosition = findPlantToolZone2(player);
+            break;
         case 9:
-
-            for(int i = 0; i < player->inventoryNextSpace; i++){
-                if(player->inventory[i].id == 24){
-                    toolPosition = i;
-                    for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                        if(player->inventory[i].id == 24 && player->inventory[j].id == 24){
-                            if(player->inventory[i].durability > player->inventory[j].durability){
-                                toolPosition = j;
-                            }
-                        }
-                    }
-                }
-            }
+            toolPosition = findPlantToolZone3(player);
         default:
             break;
     }
@@ -316,15 +367,11 @@ int findTool(Player* player, int resource){
     // Check each item to find a tool in the player inventory
     switch (resource) {
         case 3 :
-            for (int i = 0; i < player->inventoryNextSpace; i++) {
-                // Check if the right tool is available
-                if (player->inventory[i].id == 3 || player->inventory[i].id == 13 || player->inventory[i].id == 24) {
-                    // Check if the tool durability isn't equal to 0
-                    if (player->inventory[i].durability != 0) {
-                        toolPosition = i;
-                    }
-                }
-            }
+        case 6 :
+        case 9 :
+            findPlantTool(player, resource);
+            break;
+            
         case 4:
             for (int i = 0; i < player->inventoryNextSpace; i++) {
                 // Check if the right tool is available
@@ -352,7 +399,43 @@ int findTool(Player* player, int resource){
 }
 
 
+void checkMapElement(int **map, Player* player, int x, int y){
+    int element = map[x][y]; //element stored in the player's future position
+    int newPosition[2] = {x,y};
 
+    switch(element){
+        case -3 : //third zone's portal
+            break;
+        case -2 : //second zone's portal
+            break;
+        case -1 : //first zone's portal
+            break;
+        case 0 : //change player's position
+            player->position = newPosition;
+            break;
+        case 2 : //interact with PNJ
+            //instructions
+            break;
+        case 3 :
+        case 4 :
+        case 5 :
+        case 6 :
+        case 7 :
+        case 8 :
+        case 9 :
+        case 10 :
+        case 11 :
+            //getResourse(player, x, y,1,map);
+            //addToRespawnList();
+            break;
+        case 99 :
+            //engage fight with boss
+            break;
+        default:
+            //engage fight with monster
+            break;
+    }
+}
 
 
 int main() {
@@ -380,16 +463,20 @@ int main() {
     printf("\n\n");
 
     //test  = portail 3
-    mapElement* firstElement= newMapElement(-3, "Portail 3");
-    printf("\n%s : id : %d\n",firstElement->name,firstElement->id);
+    mapElement* firstElement= newMapElement(-3);
+    printf("\nid : %d\n",firstElement->id);
 
     //update map with element on a position
     int** theMap = initMap(10,10);
     displayMap(theMap,10,10);
     printf("\n\n");
     int** theMap2 = buildMap(theMap,1);
+
+    //updateMap(theMap,NULL,firstElement,5,3);
     printf("Map après update :\n");
     displayMap(theMap2,10,10);
+
+    checkMapElement(theMap,player,5,3);
 
     //Test for the linked list of things to respawn (NOT_WORKING)
     thingToRespawn* thingsToRespawn = malloc(sizeof(thingToRespawn) * 100);

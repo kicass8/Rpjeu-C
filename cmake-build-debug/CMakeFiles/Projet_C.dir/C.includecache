@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-C:/Users/alexa/Desktop/Rpjeu-C/main.c
+/cygdrive/c/Users/Titan/CLionProjects/Rpjeu-C/main.c
 stdio.h
 -
 stdlib.h
@@ -16,7 +16,7 @@ string.h
 time.h
 -
 rpg.h
-C:/Users/alexa/Desktop/Rpjeu-C/rpg.h
+/cygdrive/c/Users/Titan/CLionProjects/Rpjeu-C/rpg.h
 
-C:/Users/alexa/Desktop/Rpjeu-C/rpg.h
+/cygdrive/c/Users/Titan/CLionProjects/Rpjeu-C/rpg.h
 
