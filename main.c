@@ -143,84 +143,91 @@ int** updateMap(int** map, Player* player, mapElement* element,int x, int y)
 int** buildMap(int** map, int level)
 {
     int x,y;
-    //srand(time(NULL));
 
     //monsters positions
     for(int i=0 ; i<10 ; i++)
     {
-        x = rand()%10+1;
-        y = rand()%10+1;
-        //updateMap(map, NULL, newMapElement(12),x,y);
-        map[x][y]=12;
+        x = rand()%9+1;
+        y = rand()%9+1;
+
+        if(map[x][y]==0)
+        {
+            map[x][y]=12;
+        }
     }
 
     //rocks positions
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%10+1;
-        y = rand()%10+1;
-        if(level==1)
+        x = rand()%9+1;
+        y = rand()%9+1;
+        if(map[x][y]==0)
         {
-            //updateMap(map, NULL, newMapElement(4),x,y);
-            map[x][y]=4;
-        }
-        else if(level==2)
-        {
-            //updateMap(map, NULL, newMapElement(7),x,y);
-            map[x][y]=7;
-        }
-        else
-        {
-            //updateMap(map, NULL, newMapElement(10),x,y);
-            map[x][y]=10;
+            if(level==1)
+            {
+                map[x][y]=4;
+            }
+            else if(level==2)
+            {
+                map[x][y]=7;
+            }
+            else
+            {
+                map[x][y]=10;
+            }
         }
     }
 
     //plants positions
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%10+1;
-        y = rand()%10+1;
-        if(level==1)
+        x = rand()%9+1;
+        y = rand()%9+1;
+        if(map[x][y]==0)
         {
-            //updateMap(map, NULL, newMapElement(3),x,y);
-            map[x][y]=3;
-        }
-        else if(level==2)
-        {
-            //updateMap(map, NULL, newMapElement(6),x,y);
-            map[x][y]=6;
-        }
-        else
-        {
-            //updateMap(map, NULL, newMapElement(9),x,y);
-            map[x][y]=9;
+            if(level==1)
+            {
+                //updateMap(map, NULL, newMapElement(3),x,y);
+                map[x][y]=3;
+            }
+            else if(level==2)
+            {
+                //updateMap(map, NULL, newMapElement(6),x,y);
+                map[x][y]=6;
+            }
+            else
+            {
+                //updateMap(map, NULL, newMapElement(9),x,y);
+                map[x][y]=9;
+            }
         }
     }
 
     //wood positions
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%10+1;
-        y = rand()%10+1;
+        x = rand()%9+1;
+        y = rand()%9+1;
 
-        if(level==1)
+        if(map[x][y]==0)
         {
-            //updateMap(map, NULL, newMapElement(5),x,y);
-            map[x][y]=5;
-        }
-        else if(level==2)
-        {
-            //updateMap(map, NULL, newMapElement(8),x,y);
-            map[x][y]=8;
-        }
-        else
-        {
-            //updateMap(map, NULL, newMapElement(11),x,y);
-            map[x][y]=11;
+            if(level==1)
+            {
+                //updateMap(map, NULL, newMapElement(5),x,y);
+                map[x][y]=5;
+            }
+            else if(level==2)
+            {
+                //updateMap(map, NULL, newMapElement(8),x,y);
+                map[x][y]=8;
+            }
+            else
+            {
+                //updateMap(map, NULL, newMapElement(11),x,y);
+                map[x][y]=11;
+            }
         }
     }
-
     return(map);
 }
 
@@ -332,7 +339,7 @@ int findPlantToolZone1(Player* player){
         if(player->inventory[i].id == 13 || player->inventory[i].id == 24){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 24 || player->inventory[i].id == 13 || player->inventory[i].id == 3 && player->inventory[j].id == 24 || player->inventory[j].id == 13 player->inventory[j].id == 3){
+                if(player->inventory[i].id == 24 || player->inventory[i].id == 13 || player->inventory[i].id == 3 && player->inventory[j].id == 24 || player->inventory[j].id == 13 || player->inventory[j].id == 3){
                     if(player->inventory[i].durability > player->inventory[j].durability){
                         toolPosition = j;
                     }
@@ -470,11 +477,12 @@ int main() {
     int** theMap = initMap(10,10);
     displayMap(theMap,10,10);
     printf("\n\n");
-    int** theMap2 = buildMap(theMap,1);
+
+    theMap = buildMap(theMap,1);
 
     //updateMap(theMap,NULL,firstElement,5,3);
     printf("Map après update :\n");
-    displayMap(theMap2,10,10);
+    displayMap(theMap,10,10);
 
     checkMapElement(theMap,player,5,3);
 
