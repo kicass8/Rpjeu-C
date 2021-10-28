@@ -86,5 +86,7 @@ int getResourse(Player* player,int resource, int** map);
 int findPlantTool(Player* player, int resource);
 void addResourseToInventory(int resource, Player* player);
 void checkMapElement(int **map, Player* player, int x, int y);
+int getMapWidth(int** map);
+int getMapHeight(int** map);
 
 #endif //PROJET_C_RPG_H
