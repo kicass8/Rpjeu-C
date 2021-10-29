@@ -246,8 +246,7 @@ int getResourse(Player* player,int resource, int** map) {
     } else {
         printf("You don't have the right tool for that.");
         return res;
-
-
+        
     }
 }
 
@@ -269,7 +268,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 5 :
                 player->inventory[toolPosition].durability *= 0.10;
                 if (player->inventory[toolPosition].durability <= 0) {
-                    //  player->inventory[toolPosition] = -1; // remove the tool from the inventory if the durability is equal to 0
+                      player->inventory[toolPosition].id = -1; // remove the tool from the inventory if the durability is equal to 0
                 }
                 return 1;
             case 6 :
@@ -277,7 +276,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 8 :
                 player->inventory[toolPosition].durability *= 0.20;
                 if (player->inventory[toolPosition].durability <= 0) {
-                    //  player->inventory[toolPosition] = -1;
+                      player->inventory[toolPosition].id = -1;
                 }
                 return 1;
             case 9 :
@@ -285,7 +284,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 11 :
                 player->inventory[toolPosition].durability *= 0.40;
                 if (player->inventory[toolPosition].durability <= 0) {
-                    //  player->inventory[toolPosition] = -1;
+                      player->inventory[toolPosition].id = -1;
                 }
                 return 1;
             default:
@@ -402,6 +401,58 @@ int findRockToolZone1(Player* player){
     return toolPosition;
 }
 
+int findWoodToolZone3(Player* player){
+    int toolPosition = -1;
+    for(int i = 0; i < player->inventoryNextSpace; i++){
+        if(player->inventory[i].id == 25){
+            toolPosition = i;
+            for(int j = i + 1; j < player->inventoryNextSpace; j++){
+                if(player->inventory[i].id == 25 && player->inventory[j].id == 25){
+                    if(player->inventory[i].durability > player->inventory[j].durability){
+                        toolPosition = j;
+                    }
+                }
+            }
+        }
+    }
+    return toolPosition;
+}
+
+int findWoodToolZone2(Player* player){
+    int toolPosition = -1;
+    for(int i = 0; i < player->inventoryNextSpace; i++){
+        if(player->inventory[i].id == 25 || player->inventory[i].id == 14){
+            toolPosition = i;
+            for(int j = i + 1; j < player->inventoryNextSpace; j++){
+                if(player->inventory[i].id == 25 || player->inventory[i].id == 14 && player->inventory[j].id == 25 || player->inventory[j].id == 14){
+                    if(player->inventory[i].durability > player->inventory[j].durability){
+                        toolPosition = j;
+                    }
+                }
+            }
+        }
+    }
+    return toolPosition;
+}
+
+int findWoodToolZone1(Player* player){
+    int toolPosition = -1;
+    for(int i = 0; i < player->inventoryNextSpace; i++){
+        if(player->inventory[i].id == 25 || player->inventory[i].id == 14 || player->inventory[i].id == 4){
+            toolPosition = i;
+            for(int j = i + 1; j < player->inventoryNextSpace; j++){
+                if(player->inventory[i].id == 25 || player->inventory[i].id == 14 || player->inventory[i].id == 4 && player->inventory[j].id == 25 || player->inventory[j].id == 14 || player->inventory[j].id == 4){
+                    if(player->inventory[i].durability > player->inventory[j].durability){
+                        toolPosition = j;
+                    }
+                }
+            }
+        }
+    }
+    return toolPosition;
+}
+
+
 
 
 int findPlantTool(Player* player, int resource){
@@ -443,13 +494,13 @@ int findRockTool(Player* player, int resource){
 int findWoodTool(Player* player, int resource){
     int toolPosition = -1;
     switch (resource) {
-        case 4:
+        case 5:
             toolPosition = findWoodToolZone1(player);
             break;
-        case 7:
+        case 8:
             toolPosition = findWoodToolZone2(player);
             break;
-        case 10:
+        case 11:
             toolPosition = findWoodToolZone3(player);
         default:
             break;
@@ -475,15 +526,9 @@ int findTool(Player* player, int resource){
             findRockTool(player, resource);
             break;
         case 5 :
-            for (int i = 0; i < player->inventoryNextSpace; i++) {
-                // Check if the right tool is available
-                if (player->inventory[i].id == 4 || player->inventory[i].id == 14 || player->inventory[i].id == 25) {
-                    // Check if the tool durability isn't equal to 0
-                    if (player->inventory[i].durability != 0) {
-                        toolPosition = i;
-                    }
-                }
-            }
+        case 8 :
+        case 11 :
+            findWoodTool(player, resource);
         default: break;
     }
 
