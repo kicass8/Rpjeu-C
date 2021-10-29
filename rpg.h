@@ -82,13 +82,11 @@ int** updateMap(int** map, Player* player, mapElement* element,int x, int y);
 int** buildMap(int** map, int level);
 int findTool(Player* player, int ressource);
 int useTool(Player* player, int zone, int toolPosition);
-<<<<<<< HEAD
 int getResourse(Player* player,int resource, int** map);
 int findPlantTool(Player* player, int resource);
 void addResourseToInventory(int resource, Player* player);
-=======
-void getResourse(Player* player, int x, int y, int zone, int** map);
 void checkMapElement(int **map, Player* player, int x, int y);
->>>>>>> db39b28c1cedd9ac9480e7071cd598ae3fde2087
+int getMapWidth(int** map);
+int getMapHeight(int** map);
 
 #endif //PROJET_C_RPG_H
