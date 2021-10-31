@@ -68,6 +68,14 @@ struct mapElement {
 
 typedef struct mapElement mapElement;
 
+struct Map {
+    int width;
+    int height;
+    int level;
+    int **map;
+};
+typedef struct Map Map;
+
 thingToRespawn* addToRespawnList(thingToRespawn* list,int type, int x, int y, int map, int nbturns);
 PNJ* newPNJ();
 Monster* newMonster(char* name, int id, int HP, int attack, int expDrop);
@@ -75,11 +83,11 @@ Item* newItem(int id, int damage, int durability, int quantity, float protection
 void addToPlayerInventory(Player* player, Item* item);
 void addToPNJInventory(PNJ* pnj, Item* item);
 Player* initPlayer();
-int** initMap(int width, int height);
-void displayMap(int** map,int width, int height);
+Map* initMap(int width, int height,int level);
+void displayMap(Map* pMap);
 mapElement* newMapElement(int id);
-int** updateMap(int** map, Player* player, mapElement* element,int x, int y);
-int** buildMap(int** map, int level);
+int** updateMap(int** map, mapElement* element,int x, int y);
+Map* buildMap(Map* pMap);
 int findTool(Player* player, int ressource);
 int findWoodTool(Player* player, int resource);
 int findRockTool(Player* player, int resource);
@@ -88,8 +96,6 @@ int useTool(Player* player, int zone, int toolPosition);
 int getResourse(Player* player,int resource, int** map);
 int findPlantTool(Player* player, int resource);
 void addResourseToInventory(int resource, Player* player);
-void checkMapElement(int **map, Player* player, int x, int y);
-int getMapWidth(int** map);
-int getMapHeight(int** map);
+void checkMapElement(Map* pMap, Player* player, int x, int y);
 
 #endif //PROJET_C_RPG_H

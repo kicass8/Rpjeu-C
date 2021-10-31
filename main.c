@@ -89,9 +89,27 @@ Player* initPlayer(){
     return player;
 }
 
-int** initMap(int width, int height)
+Map* initMap(int width, int height,int level)
 {
     //creation of the map
+    Map* aMap = malloc(sizeof(Map));
+
+    aMap->width = width;
+    aMap->height = height;
+    aMap->level = level;
+
+    int** map = (int**) malloc(sizeof(int*)*height);
+
+    for(int i=0 ; i<height ; i++){
+        *(map+i)= (int*)malloc(sizeof(int)*width);
+        for(int j=0 ; j<width ; j++){
+            map[i][j]=0;
+        }
+    }
+
+    aMap->map = map;
+    return (aMap);
+    /*
     int** map = (int**) malloc(sizeof(int*)*height);
     for(int i=0 ; i<height ; i++){
         *(map+i)= (int*)malloc(sizeof(int)*width);
@@ -100,14 +118,15 @@ int** initMap(int width, int height)
         }
     }
     return(map);
+     */
 }
 
-void displayMap(int** map,int width, int height)
+void displayMap(Map* pMap)
 {
     printf("\n");
-    for(int i=0 ;i<height ; i++){
-        for(int j=0 ; j<width ; j++){
-            printf(" %d ",map[i][j]);
+    for(int i=0 ;i<pMap->height ; i++){
+        for(int j=0 ; j<pMap->width ; j++){
+            printf(" %d ",pMap->map[i][j]);
         }
         printf("\n");
     }
@@ -124,56 +143,48 @@ mapElement* newMapElement(int id)
 
 
 //updating the map
-int** updateMap(int** map, Player* player, mapElement* element,int x, int y)
+int** updateMap(int** map,mapElement* element,int x, int y)
 {
-    if(player==NULL)
-    {
-        //idElement on the map
-        map[x][y]=element->id;
-    }
-    else if(element==NULL)
-    {
-        map[x][y]=1;
-    }
-
+    map[x][y]=element->id;
     return(map);
 }
 
 //building a map
-int** buildMap(int** map, int level)
+Map* buildMap(Map* pMap)
 {
     int x,y;
 
     //monsters positions
     for(int i=0 ; i<10 ; i++)
     {
-        x = rand()%9+1;
-        y = rand()%9+1;
+        x = rand()%(pMap->width-1)+1;
+        y = rand()%(pMap->height-1)+1;
 
-        if(map[x][y]==0)
+        if(pMap->map[x][y]==0)
         {
-            map[x][y]=12;
+            pMap->map[x][y]=12;
         }
     }
 
     //rocks positions
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%9+1;
-        y = rand()%9+1;
-        if(map[x][y]==0)
+        x = rand()%(pMap->width-1)+1;
+        y = rand()%(pMap->height-1)+1;
+
+        if(pMap->map[x][y]==0)
         {
-            if(level==1)
+            if(pMap->level==1)
             {
-                map[x][y]=4;
+                pMap->map[x][y]=4;
             }
-            else if(level==2)
+            else if(pMap->level==2)
             {
-                map[x][y]=7;
+                pMap->map[x][y]=7;
             }
             else
             {
-                map[x][y]=10;
+                pMap->map[x][y]=10;
             }
         }
     }
@@ -181,24 +192,25 @@ int** buildMap(int** map, int level)
     //plants positions
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%9+1;
-        y = rand()%9+1;
-        if(map[x][y]==0)
+        x = rand()%(pMap->width-1)+1;
+        y = rand()%(pMap->height-1)+1;
+
+        if(pMap->map[x][y]==0)
         {
-            if(level==1)
+            if(pMap->level==1)
             {
                 //updateMap(map, NULL, newMapElement(3),x,y);
-                map[x][y]=3;
+                pMap->map[x][y]=3;
             }
-            else if(level==2)
+            else if(pMap->level==2)
             {
                 //updateMap(map, NULL, newMapElement(6),x,y);
-                map[x][y]=6;
+                pMap->map[x][y]=6;
             }
             else
             {
                 //updateMap(map, NULL, newMapElement(9),x,y);
-                map[x][y]=9;
+                pMap->map[x][y]=9;
             }
         }
     }
@@ -206,29 +218,29 @@ int** buildMap(int** map, int level)
     //wood positions
     for(int i=0 ; i<3 ; i++)
     {
-        x = rand()%9+1;
-        y = rand()%9+1;
+        x = rand()%pMap->width+1;
+        y = rand()%pMap->height+1;
 
-        if(map[x][y]==0)
+        if(pMap->map[x][y]==0)
         {
-            if(level==1)
+            if(pMap->level==1)
             {
                 //updateMap(map, NULL, newMapElement(5),x,y);
-                map[x][y]=5;
+                pMap->map[x][y]=5;
             }
-            else if(level==2)
+            else if(pMap->level==2)
             {
                 //updateMap(map, NULL, newMapElement(8),x,y);
-                map[x][y]=8;
+                pMap->map[x][y]=8;
             }
             else
             {
                 //updateMap(map, NULL, newMapElement(11),x,y);
-                map[x][y]=11;
+                pMap->map[x][y]=11;
             }
         }
     }
-    return(map);
+    return(pMap);
 }
 
 //Add the resource to the player inventory and change the position of the player if it's possible
@@ -535,9 +547,8 @@ int findTool(Player* player, int resource){
     return toolPosition;
 }
 
-
-void checkMapElement(int **map, Player* player, int x, int y){
-    int element = map[x][y]; //element stored in the player's future position
+void checkMapElement(Map* pMap, Player* player, int x, int y){
+    int element = pMap->map[x][y]; //element stored in the player's future position
     int newPosition[2] = {x,y};
 
     switch(element){
@@ -596,7 +607,6 @@ int main() {
     }
 
     //test map
-    //displayMap(initMap(5,5,1),5,5);
     printf("\n\n");
 
     //test  = portail 3
@@ -604,17 +614,34 @@ int main() {
     printf("\nid : %d\n",firstElement->id);
 
     //update map with element on a position
-    int** theMap = initMap(10,10);
-    displayMap(theMap,10,10);
-    printf("\n\n");
+    Map* map1 = initMap(10,10,1);
+    Map* map2 = initMap(19,15,2);
+    Map* map3 = initMap(20,25,3);
 
-    theMap = buildMap(theMap,1);
+    buildMap(map1);
+    buildMap(map2);
+    buildMap(map3);
+
+    printf("Test d'initialisation des maps\n\n");
+    printf("Map niveau 1\n");
+    displayMap(map1);
+    printf("\n");
+
+    printf("Map niveau 2\n");
+    displayMap(map2);
+    printf("\n");
+
+    printf("Map niveau 3\n");
+    displayMap(map3);
+    printf("\n");
+
+    //theMap = buildMap(theMap);
 
     //updateMap(theMap,NULL,firstElement,5,3);
-    printf("Map après update :\n");
-    displayMap(theMap,10,10);
+    //printf("Map après update :\n");
+    //displayMap(theMap);
 
-    checkMapElement(theMap,player,5,3);
+    checkMapElement(map3,player,5,3);
 
     //Test for the linked list of things to respawn (NOT_WORKING)
     thingToRespawn* thingsToRespawn = malloc(sizeof(thingToRespawn) * 100);
