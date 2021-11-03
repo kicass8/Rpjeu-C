@@ -87,7 +87,7 @@ Map* initMap(int width, int height,int level);
 void displayMap(Map* pMap);
 mapElement* newMapElement(int id);
 int** updateMap(int** map, mapElement* element,int x, int y);
-Map* buildMap(Map* pMap);
+/*Map**/void buildMap(Map* pMap);
 int findTool(Player* player, int ressource);
 int findWoodTool(Player* player, int resource);
 int findRockTool(Player* player, int resource);

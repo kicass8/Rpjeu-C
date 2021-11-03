@@ -150,12 +150,13 @@ int** updateMap(int** map,mapElement* element,int x, int y)
 }
 
 //building a map
-Map* buildMap(Map* pMap)
+/*Map**/void buildMap(Map* pMap)
 {
-    int x,y;
+    int x;
+    int y;
 
     //monsters positions
-    for(int i=0 ; i<10 ; i++)
+    for(int i=0;i<10;i++)
     {
         x = rand()%(pMap->width-1)+1;
         y = rand()%(pMap->height-1)+1;
@@ -167,7 +168,7 @@ Map* buildMap(Map* pMap)
     }
 
     //rocks positions
-    for(int i=0 ; i<3 ; i++)
+    for(int i=0;i<3;i++)
     {
         x = rand()%(pMap->width-1)+1;
         y = rand()%(pMap->height-1)+1;
@@ -190,7 +191,7 @@ Map* buildMap(Map* pMap)
     }
 
     //plants positions
-    for(int i=0 ; i<3 ; i++)
+    for(int i=0;i<3;i++)
     {
         x = rand()%(pMap->width-1)+1;
         y = rand()%(pMap->height-1)+1;
@@ -216,7 +217,7 @@ Map* buildMap(Map* pMap)
     }
 
     //wood positions
-    for(int i=0 ; i<3 ; i++)
+    for(int i=0;i<3;i++)
     {
         x = rand()%pMap->width+1;
         y = rand()%pMap->height+1;
@@ -240,7 +241,7 @@ Map* buildMap(Map* pMap)
             }
         }
     }
-    return(pMap);
+    //return(pMap);
 }
 
 //Add the resource to the player inventory and change the position of the player if it's possible
@@ -614,13 +615,16 @@ int main() {
     printf("\nid : %d\n",firstElement->id);
 
     //update map with element on a position
-    Map* map1 = initMap(10,10,1);
-    Map* map2 = initMap(19,15,2);
-    Map* map3 = initMap(20,25,3);
+    Map* map1 = initMap(10,15,1);
+    Map* map2 = initMap(20,20,2);
+    Map* map3 = initMap(25,25,3);
 
     buildMap(map1);
+    printf("map1 faite\n");
     buildMap(map2);
+    printf("map2 faite\n");
     buildMap(map3);
+    printf("map3 faite\n");
 
     printf("Test d'initialisation des maps\n\n");
     printf("Map niveau 1\n");
@@ -634,6 +638,8 @@ int main() {
     printf("Map niveau 3\n");
     displayMap(map3);
     printf("\n");
+
+
 
     //theMap = buildMap(theMap);
 
