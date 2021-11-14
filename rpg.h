@@ -95,7 +95,9 @@ int findPlantTool(Player* player, int resource);
 int useTool(Player* player, int zone, int toolPosition);
 int getResourse(Player* player,int resource, int** map);
 int findPlantTool(Player* player, int resource);
-void addResourseToInventory(int resource, Player* player);
+void addResourseToInventory(int resource, Player* player, int nbResource);
+void dropResources(int resource, Player* player);
+void interactWithPNJ(PNJ* pnj, Player* player);
 void checkMapElement(Map* pMap, Player* player, int x, int y);
 
 #endif //PROJET_C_RPG_H
