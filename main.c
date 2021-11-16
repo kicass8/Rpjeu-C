@@ -109,16 +109,6 @@ Map* initMap(int width, int height,int level)
 
     aMap->map = map;
     return (aMap);
-    /*
-    int** map = (int**) malloc(sizeof(int*)*height);
-    for(int i=0 ; i<height ; i++){
-        *(map+i)= (int*)malloc(sizeof(int)*width);
-        for(int j=0 ; j<width ; j++){
-            map[i][j]=0;
-        }
-    }
-    return(map);
-     */
 }
 
 void displayMap(Map* pMap)
@@ -161,6 +151,13 @@ int** updateMap(int** map,mapElement* element,int x, int y)
         x = rand()%(pMap->width-1)+1;
         y = rand()%(pMap->height-1)+1;
 
+        //debuggin purposes
+        printf("\n\nMonsters\n\n");
+        if(pMap->level==1)
+        {
+            printf("x=%d\ny=%d",x,y);
+        }
+
         if(pMap->map[x][y]==0)
         {
             pMap->map[x][y]=12;
@@ -196,6 +193,12 @@ int** updateMap(int** map,mapElement* element,int x, int y)
         x = rand()%(pMap->width-1)+1;
         y = rand()%(pMap->height-1)+1;
 
+        //debuggin purposes
+        printf("\n\nplants\n\n");
+        if(pMap->level==1)
+        {
+            printf("x=%d\ny=%d",x,y);
+        }
         if(pMap->map[x][y]==0)
         {
             if(pMap->level==1)
@@ -219,8 +222,15 @@ int** updateMap(int** map,mapElement* element,int x, int y)
     //wood positions
     for(int i=0;i<3;i++)
     {
-        x = rand()%pMap->width+1;
-        y = rand()%pMap->height+1;
+        x = rand()%(pMap->width-1)+1;
+        y = rand()%(pMap->height-1)+1;
+
+        //debuggin purposes
+        printf("\n\nwood\n\n");
+        if(pMap->level==1)
+        {
+            printf("x=%d\ny=%d",x,y);
+        }
 
         if(pMap->map[x][y]==0)
         {
@@ -241,7 +251,6 @@ int** updateMap(int** map,mapElement* element,int x, int y)
             }
         }
     }
-    //return(pMap);
 }
 
 //Add the resource to the player inventory and change the position of the player if it's possible
@@ -596,18 +605,24 @@ void storeInPNJInventory(PNJ* pnj, Player* player){
 
 // BESOIN DE SHOWINVENTORYPNJ ou pas besoin si on affiche ici ?
 // Take a chosen item from the PNJ inventory
-void takeInPNJInventory(PNJ* pnj, Player* player){
+void takeInPNJInventory(PNJ* pnj, Player* player) {
     int choosenItem;
-    for(int i = 0 ; i < player->inventoryNextSpace ; i++){
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i].id, pnj->inventory[i].damage, pnj->inventory[i].durability, pnj->inventory[i].quantity);
+    for (int i = 0; i < player->inventoryNextSpace; i++) {
+        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i].id,
+               pnj->inventory[i].damage, pnj->inventory[i].durability, pnj->inventory[i].quantity);
     }
     scanf("%d", &choosenItem);
-    if(choosenItem >= 0 && choosenItem < pnj->inventoryNextSpace){
-        if(pnj->inventory[choosenItem].id >= 3 && pnj->inventory[choosenItem].id <= 11){
-            addResourseToInventory(pnj->inventory[choosenItem].id, player, pnj->inventory[choosenItem].quantity); // Call the function to add a resource to the player inventory
+    if (choosenItem >= 0 && choosenItem < pnj->inventoryNextSpace) {
+        if (pnj->inventory[choosenItem].id >= 3 && pnj->inventory[choosenItem].id <= 11) {
+            addResourseToInventory(pnj->inventory[choosenItem].id, player,
+                                   pnj->inventory[choosenItem].quantity); // Call the function to add a resource to the player inventory
         }
-        addToPlayerInventory(player, newItem(pnj->inventory[choosenItem].id, pnj->inventory[choosenItem].damage, pnj->inventory[choosenItem].durability, pnj->inventory[choosenItem].quantity, pnj->inventory[choosenItem].protection, pnj->inventory[choosenItem].heal));
+        addToPlayerInventory(player, newItem(pnj->inventory[choosenItem].id, pnj->inventory[choosenItem].damage,
+                                             pnj->inventory[choosenItem].durability,
+                                             pnj->inventory[choosenItem].quantity,
+                                             pnj->inventory[choosenItem].protection, pnj->inventory[choosenItem].heal));
         //; free(pnj->inventory[choosenItem]);
+    }
 }
 
 void repairItem(Player* player){
@@ -771,7 +786,7 @@ int main() {
     //printf("Map après update :\n");
     //displayMap(theMap);
 
-    checkMapElement(map3,player,5,3);
+    //checkMapElement(map3,player,5,3);
 
 
 
