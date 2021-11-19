@@ -99,5 +99,6 @@ void addResourseToInventory(int resource, Player* player, int nbResource);
 void dropResources(int resource, Player* player);
 void interactWithPNJ(PNJ* pnj, Player* player);
 void checkMapElement(Map* pMap, Player* player, int x, int y);
-
+void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3);
+int getRandomNum(int limit);
 #endif //PROJET_C_RPG_H

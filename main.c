@@ -716,6 +716,30 @@ void checkMapElement(Map* pMap, Player* player, int x, int y){
     }
 }
 
+void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3)
+{
+    Map* list[3] = {pmap1,pmap2,pmap3};
+
+    for(int i=0 ; i<3 ; i++)
+    {
+        switch (list[i]->level)
+        {
+            case 1 : list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
+                        break;
+            case 2 : list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
+                    list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-3;
+                        break;
+            case 3 : list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-3;
+                    break;
+        }
+    }
+}
+
+int getRandomNum(int limit)
+{
+    return (rand()%limit+1);
+}
+
 int main() {
     Player* player = initPlayer();
 
@@ -764,6 +788,8 @@ int main() {
     printf("map2 faite\n");
     buildMap(map3);
     printf("map3 faite\n");
+
+    putPortalOnMap(map1,map2,map3);
 
     printf("Test d'initialisation des maps\n\n");
     printf("Map niveau 1\n");
