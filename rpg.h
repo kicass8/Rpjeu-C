@@ -24,7 +24,7 @@ struct Player {
     int expToNextLvl;
     int HP;
     int maxHP;
-    Item* inventory;
+    Item* inventory[10];
     int inventoryNextSpace;
     int* position;
 };
@@ -82,6 +82,7 @@ Monster* newMonster(char* name, int id, int HP, int attack, int expDrop);
 Item* newItem(int id, int damage, int durability, int quantity, float protection, int heal);
 void addToPlayerInventory(Player* player, Item* item);
 void addToPNJInventory(PNJ* pnj, Item* item);
+void removeFromPlayerInventory(Player* player, int index);
 Player* initPlayer();
 Map* initMap(int width, int height,int level);
 void displayMap(Map* pMap);

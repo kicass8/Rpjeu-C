@@ -41,8 +41,21 @@ PNJ* newPNJ(){
 
 //Adds an already initialised Item to the Player's inventory.
 void addToPlayerInventory(Player* player, Item* item){
-    player->inventory[player->inventoryNextSpace] = *item;
+    player->inventory[player->inventoryNextSpace] = item;
     player->inventoryNextSpace++;
+}
+
+//Removes the item at the given index of a player's inventory
+void removeFromPlayerInventory(Player* player, int index){
+    int j = 0;
+    for (int i = 0; i < player->inventoryNextSpace; i++){
+        if(i != index){
+            player->inventory[j] = player->inventory[i];
+            j++;
+        }
+    }
+    player->inventoryNextSpace -= 1;
+    player->inventory[9] = NULL;
 }
 
 //Adds an already initialised Item to a PNJ's inventory.
@@ -53,32 +66,31 @@ void addToPNJInventory(PNJ* pnj, Item* item){
 
 //adds a thing to respawn to the respawn linked list
 thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, int map, int nbturns){
-    thingToRespawn* temp = head;
-    while (head->next != NULL){
-        head = head->next;
-    }
     thingToRespawn* newThing = malloc(sizeof(thingToRespawn));
     newThing->type = type;
     newThing->x = x;
     newThing->y = y;
     newThing->map = map;
     newThing->turnsUntilRespawn = nbturns;
+    newThing->next = NULL;
 
-    head->next = newThing;
-    head = temp;
-    return head;
+    if(head != NULL){
+        while (head->next != NULL){
+            head = head->next;
+        }
+        head->next = newThing;
+    }
+    return newThing;
 }
 
 //To be called at the start of the game. Creates a Player with all the default values it needs.
 Player* initPlayer(){
     Player* player = malloc(sizeof(Player));
-    Item* defaultInventory = malloc(sizeof(Item) * 10);
     player->level = 1;
     player->exp = 0;
     player->expToNextLvl = 100;
     player->HP = 100;
     player->maxHP = 100;
-    player->inventory = defaultInventory;
     player->inventoryNextSpace = 0;
     int position[2] = {0, 0};
     player->position = position;
@@ -86,6 +98,9 @@ Player* initPlayer(){
     addToPlayerInventory(player, newItem(2, -1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(3, -1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(4, -1, 10, -1, -1, -1));
+    for (int i = 4; i < 10; ++i) {
+        player->inventory[i] = NULL;
+    }
     return player;
 }
 
@@ -232,7 +247,7 @@ int** updateMap(int** map,mapElement* element,int x, int y)
         }
     }
 }
-
+/*
 //Add the resource to the player inventory and change the position of the player if it's possible
 int getResourse(Player* player, int resource, int** map) {
     //  Check if the inventory is full
@@ -256,10 +271,10 @@ int getResourse(Player* player, int resource, int** map) {
 // Check if the resource exist in the player inventory to stack it
 int isResourceExistInInventory(Player* player, int resource, int nbResource){
     for(int i = 0 ; i < player->inventoryNextSpace ; i++){
-        if(player->inventory[i].id == resource){
-            if(player->inventory[i].quantity < 20){
-                while(player->inventory[i].quantity < 20 || nbResource != 0){
-                    player->inventory[i].quantity++;
+        if(player->inventory[i]->id == resource){
+            if(player->inventory[i]->quantity < 20){
+                while(player->inventory[i]->quantity < 20 || nbResource != 0){
+                    player->inventory[i]->quantity++;
                     nbResource--;
                 }
             }
@@ -296,25 +311,25 @@ int useTool(Player* player, int resource, int toolPosition){
             case 3 :
             case 4 :
             case 5 :
-                player->inventory[toolPosition].durability *= 0.10;
-                if (player->inventory[toolPosition].durability <= 0) {
-                      player->inventory[toolPosition].id = -1; // remove the tool from the inventory if the durability is equal to 0
+                player->inventory[toolPosition]->durability *= 0.10;
+                if (player->inventory[toolPosition]->durability <= 0) {
+                      player->inventory[toolPosition]->id = -1; // remove the tool from the inventory if the durability is equal to 0
                 }
                 return 1;
             case 6 :
             case 7 :
             case 8 :
-                player->inventory[toolPosition].durability *= 0.20;
-                if (player->inventory[toolPosition].durability <= 0) {
-                      player->inventory[toolPosition].id = -1;
+                player->inventory[toolPosition]->durability *= 0.20;
+                if (player->inventory[toolPosition]->durability <= 0) {
+                      player->inventory[toolPosition]->id = -1;
                 }
                 return 1;
             case 9 :
             case 10 :
             case 11 :
-                player->inventory[toolPosition].durability *= 0.40;
-                if (player->inventory[toolPosition].durability <= 0) {
-                      player->inventory[toolPosition].id = -1;
+                player->inventory[toolPosition]->durability *= 0.40;
+                if (player->inventory[toolPosition]->durability <= 0) {
+                      player->inventory[toolPosition]->id = -1;
                 }
                 return 1;
             default:
@@ -330,11 +345,11 @@ int useTool(Player* player, int resource, int toolPosition){
 int findPlantToolZone3(Player* player){
     int toolPosition = -1;
     for(int i = 0; i < player->inventoryNextSpace; i++){
-        if(player->inventory[i].id == 24){
+        if(player->inventory[i]->id == 24){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 24 && player->inventory[j].id == 24){
-                    if(player->inventory[i].durability > player->inventory[j].durability){
+                if(player->inventory[i]->id == 24 && player->inventory[j]->id == 24){
+                    if(player->inventory[i]->durability > player->inventory[j]->durability){
                         toolPosition = j;
                     }
                 }
@@ -729,19 +744,29 @@ void putElementHere(Map* pMap,int x, int y,int elementID)
     pMap->map[x][y] = elementID;
 }
 
+*/
 int main() {
     Player* player = initPlayer();
 
     //Test to see if initPlayer and the other functions associated work
     printf("Player's position : %d, %d\n", player->position[0], player->position[1]);
     for (int i = 0; i < player->inventoryNextSpace; ++i) {
-        printf("Item id: %d, damage: %d, durability: %d\n", player->inventory[i].id, player->inventory[i].damage, player->inventory[i].durability);
+        printf("Item id: %d, damage: %d, durability: %d\n", player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability);
+    }
+
+    printf("\n");
+
+    //Test to see if removing the second item from the inventory works
+    removeFromPlayerInventory(player, 1);
+    for (int i = 0; i < player->inventoryNextSpace; ++i) {
+        printf("Item id: %d, damage: %d, durability: %d\n", player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability);
     }
 
     //Test for monster creation
     Monster* monster = newMonster("Dragon", 12, 25, 15, 100);
     printf("Nom du monstre : %s, id : %d, HP : %d, attack : %d, expDrop : %d\n", monster->name, monster->id, monster->HP, monster->attack, monster->expDrop);
 
+    /*
     //Test for PNJ creation
     PNJ* pnj1 = newPNJ();
     addToPNJInventory(pnj1, newItem(1, 1, 10, -1, -1, -1));
@@ -806,15 +831,13 @@ int main() {
     //printf("\n\n\n");
     //putElementHere(map1,5,5,2000);
     //displayMap(map1);
-
-    //Test for the linked list of things to respawn (NOT_WORKING)
-    thingToRespawn* thingsToRespawn = malloc(sizeof(thingToRespawn) * 100);
+    */
+    //Test for the linked list of things to respawn
+    thingToRespawn* thingsToRespawn = NULL;
     thingsToRespawn = addToRespawnList(thingsToRespawn, 3, 1, 1, 1,10);
-    while (thingsToRespawn->next != NULL){
+    do {
         printf("Thing -> type : %d, coordinates : {%d, %d} , map : %d, in how many turns : %d\n", thingsToRespawn->type, thingsToRespawn->x, thingsToRespawn->y, thingsToRespawn->map, thingsToRespawn->turnsUntilRespawn);
         thingsToRespawn = thingsToRespawn->next;
-    }
-
-
+    }while (thingsToRespawn->next != NULL);
 
 }
