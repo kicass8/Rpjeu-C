@@ -33,8 +33,6 @@ Monster* newMonster(char* name, int id, int HP, int attack, int expDrop){
 //Returns a pointer to a PNJ after initialising it with an empty inventory.
 PNJ* newPNJ(){
     PNJ* pnj = malloc(sizeof(PNJ));
-    Item* defaultInventory = malloc(sizeof(Item) * 255);
-    pnj->inventory = defaultInventory;
     pnj->inventoryNextSpace = 0;
     return pnj;
 }

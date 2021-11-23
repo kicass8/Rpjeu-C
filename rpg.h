@@ -44,7 +44,7 @@ typedef struct Monster Monster;
 
 //PNJ structure, holds items, 'inventoryNextSpace' is used to keep track of the next available index of the inventory.
 struct PNJ {
-    Item* inventory;
+    Item* inventory[255];
     int inventoryNextSpace;
 };
 
