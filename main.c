@@ -151,13 +151,6 @@ int** updateMap(int** map,mapElement* element,int x, int y)
         x = rand()%(pMap->width-1)+1;
         y = rand()%(pMap->height-1)+1;
 
-        //debuggin purposes
-        printf("\n\nMonsters\n\n");
-        if(pMap->level==1)
-        {
-            printf("x=%d\ny=%d",x,y);
-        }
-
         if(pMap->map[x][y]==0)
         {
             pMap->map[x][y]=12;
@@ -193,12 +186,6 @@ int** updateMap(int** map,mapElement* element,int x, int y)
         x = rand()%(pMap->width-1)+1;
         y = rand()%(pMap->height-1)+1;
 
-        //debuggin purposes
-        printf("\n\nplants\n\n");
-        if(pMap->level==1)
-        {
-            printf("x=%d\ny=%d",x,y);
-        }
         if(pMap->map[x][y]==0)
         {
             if(pMap->level==1)
@@ -224,13 +211,6 @@ int** updateMap(int** map,mapElement* element,int x, int y)
     {
         x = rand()%(pMap->width-1)+1;
         y = rand()%(pMap->height-1)+1;
-
-        //debuggin purposes
-        printf("\n\nwood\n\n");
-        if(pMap->level==1)
-        {
-            printf("x=%d\ny=%d",x,y);
-        }
 
         if(pMap->map[x][y]==0)
         {
@@ -724,12 +704,16 @@ void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3)
     {
         switch (list[i]->level)
         {
-            case 1 : list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
+            case 1 : //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-2);
+                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
                         break;
-            case 2 : list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
+            case 2 : //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-2);
+                //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-3);
+                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
                     list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-3;
                         break;
-            case 3 : list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-3;
+            case 3 : //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-3);
+                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-3;
                     break;
         }
     }
@@ -738,6 +722,11 @@ void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3)
 int getRandomNum(int limit)
 {
     return (rand()%limit+1);
+}
+
+void putElementHere(Map* pMap,int x, int y,int elementID)
+{
+    pMap->map[x][y] = elementID;
 }
 
 int main() {
@@ -768,7 +757,7 @@ int main() {
         printf("PNJ1's inventory : id: %d, damage: %d, durability: %d\n", pnj1->inventory[i].id, pnj1->inventory[i].damage, pnj1->inventory[i].durability);
     }
 
-    interactWithPNJ(pnj1);
+    //interactWithPNJ(pnj1);
 
     //test map
     printf("\n\n");
@@ -814,7 +803,9 @@ int main() {
 
     //checkMapElement(map3,player,5,3);
 
-
+    //printf("\n\n\n");
+    //putElementHere(map1,5,5,2000);
+    //displayMap(map1);
 
     //Test for the linked list of things to respawn (NOT_WORKING)
     thingToRespawn* thingsToRespawn = malloc(sizeof(thingToRespawn) * 100);
