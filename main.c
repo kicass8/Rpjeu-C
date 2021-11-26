@@ -57,10 +57,10 @@ void removeFromPlayerInventory(Player* player, int index){
 }
 
 //Adds an already initialised Item to a PNJ's inventory.
-void addToPNJInventory(PNJ* pnj, Item* item){
+/*void addToPNJInventory(PNJ* pnj, Item* item){
     pnj->inventory[pnj->inventoryNextSpace] = *item;
     pnj->inventoryNextSpace++;
-}
+}*/
 
 //adds a thing to respawn to the respawn linked list
 thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, int map, int nbturns){
@@ -244,6 +244,77 @@ int** updateMap(int** map,mapElement* element,int x, int y)
             }
         }
     }
+}
+
+void checkMapElement(Map* pMap, Player* player, int x, int y){
+    int element = pMap->map[x][y]; //element stored in the player's future position
+    int newPosition[2] = {x,y};
+
+    switch(element){
+        case -3 : //third zone's portal
+            break;
+        case -2 : //second zone's portal
+            break;
+        case -1 : //first zone's portal
+            break;
+        case 0 : //change player's position
+            player->position = newPosition;
+            break;
+        case 2 : //interact with PNJ
+            //instructions
+            break;
+        case 3 :
+        case 4 :
+        case 5 :
+        case 6 :
+        case 7 :
+        case 8 :
+        case 9 :
+        case 10 :
+        case 11 :
+            //getResourse(player, x, y,1,map);
+            //addToRespawnList();
+            break;
+        case 99 :
+            //engage fight with boss
+            break;
+        default:
+            //engage fight with monster
+            break;
+    }
+}
+
+void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3)
+{
+    Map* list[3] = {pmap1,pmap2,pmap3};
+
+    for(int i=0 ; i<3 ; i++)
+    {
+        switch (list[i]->level)
+        {
+            case 1 : //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-2);
+                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
+                break;
+            case 2 : //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-2);
+                //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-3);
+                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
+                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-3;
+                break;
+            case 3 : //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-3);
+                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-3;
+                break;
+        }
+    }
+}
+
+int getRandomNum(int limit)
+{
+    return (rand()%limit+1);
+}
+
+void putElementHere(Map* pMap,int x, int y,int elementID)
+{
+    pMap->map[x][y] = elementID;
 }
 /*
 //Add the resource to the player inventory and change the position of the player if it's possible
@@ -670,79 +741,8 @@ void interactWithPNJ(PNJ* pnj, Player* player){
     scanf("\n%d", &choice);
     usePNJ(pnj, player, choice);
 }
-
-void checkMapElement(Map* pMap, Player* player, int x, int y){
-    int element = pMap->map[x][y]; //element stored in the player's future position
-    int newPosition[2] = {x,y};
-
-    switch(element){
-        case -3 : //third zone's portal
-            break;
-        case -2 : //second zone's portal
-            break;
-        case -1 : //first zone's portal
-            break;
-        case 0 : //change player's position
-            player->position = newPosition;
-            break;
-        case 2 : //interact with PNJ
-            //instructions
-            break;
-        case 3 :
-        case 4 :
-        case 5 :
-        case 6 :
-        case 7 :
-        case 8 :
-        case 9 :
-        case 10 :
-        case 11 :
-            //getResourse(player, x, y,1,map);
-            //addToRespawnList();
-            break;
-        case 99 :
-            //engage fight with boss
-            break;
-        default:
-            //engage fight with monster
-            break;
-    }
-}
-
-void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3)
-{
-    Map* list[3] = {pmap1,pmap2,pmap3};
-
-    for(int i=0 ; i<3 ; i++)
-    {
-        switch (list[i]->level)
-        {
-            case 1 : //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-2);
-                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
-                        break;
-            case 2 : //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-2);
-                //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-3);
-                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-2;
-                    list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-3;
-                        break;
-            case 3 : //putElementHere(list[i]->map, getRandomNum(list[i]->width), getRandomNum(list[i]->height),-3);
-                list[i]->map[getRandomNum(list[i]->width)][getRandomNum(list[i]->height)]=-3;
-                    break;
-        }
-    }
-}
-
-int getRandomNum(int limit)
-{
-    return (rand()%limit+1);
-}
-
-void putElementHere(Map* pMap,int x, int y,int elementID)
-{
-    pMap->map[x][y] = elementID;
-}
-
 */
+
 int main() {
     Player* player = initPlayer();
 
@@ -764,21 +764,21 @@ int main() {
     Monster* monster = newMonster("Dragon", 12, 25, 15, 100);
     printf("Nom du monstre : %s, id : %d, HP : %d, attack : %d, expDrop : %d\n", monster->name, monster->id, monster->HP, monster->attack, monster->expDrop);
 
-    /*
+
     //Test for PNJ creation
-    PNJ* pnj1 = newPNJ();
+    /*PNJ* pnj1 = newPNJ();
     addToPNJInventory(pnj1, newItem(1, 1, 10, -1, -1, -1));
     addToPNJInventory(pnj1, newItem(3, -1, -1, 5, -1, -1));
-    addToPNJInventory(pnj1, newItem(4, -1, -1, 5, -1, -1));
+    addToPNJInventory(pnj1, newItem(4, -1, -1, 5, -1, -1));*/
 
     printf("\n---------------------------\n");
 
-    showPNJInventory(pnj1);
+    //showPNJInventory(pnj1);
 
-    printf("\n---------------------------\n");
+    /*printf("\n---------------------------\n");
     for (int i = 0; i < pnj1->inventoryNextSpace; ++i) {
         printf("PNJ1's inventory : id: %d, damage: %d, durability: %d\n", pnj1->inventory[i].id, pnj1->inventory[i].damage, pnj1->inventory[i].durability);
-    }
+    }*/
 
     //interactWithPNJ(pnj1);
 
@@ -794,6 +794,8 @@ int main() {
     Map* map2 = initMap(20,20,2);
     Map* map3 = initMap(25,25,3);
 
+
+
     buildMap(map1);
     printf("map1 faite\n");
     buildMap(map2);
@@ -802,6 +804,7 @@ int main() {
     printf("map3 faite\n");
 
     putPortalOnMap(map1,map2,map3);
+    putPlayerOnMap(map1,player);
 
     printf("Test d'initialisation des maps\n\n");
     printf("Map niveau 1\n");
@@ -829,7 +832,8 @@ int main() {
     //printf("\n\n\n");
     //putElementHere(map1,5,5,2000);
     //displayMap(map1);
-    */
+
+    /*
     //Test for the linked list of things to respawn
     thingToRespawn* thingsToRespawn = NULL;
     thingsToRespawn = addToRespawnList(thingsToRespawn, 3, 1, 1, 1,10);
@@ -837,5 +841,5 @@ int main() {
         printf("Thing -> type : %d, coordinates : {%d, %d} , map : %d, in how many turns : %d\n", thingsToRespawn->type, thingsToRespawn->x, thingsToRespawn->y, thingsToRespawn->map, thingsToRespawn->turnsUntilRespawn);
         thingsToRespawn = thingsToRespawn->next;
     }while (thingsToRespawn->next != NULL);
-
+    */
 }
