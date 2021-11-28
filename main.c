@@ -104,6 +104,45 @@ thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, i
     return newThing;
 }
 
+int updateTimerToRespawn(thingToRespawn* head){
+    int count = 0;
+    int stop = 0;
+    if(head != NULL){
+        do {
+            head->turnsUntilRespawn -= 1;
+            if(head->turnsUntilRespawn == 0){
+                count++;
+            }
+            if(head->next != NULL){
+                head = head->next;
+            } else {
+                stop = 1;
+            }
+        } while (stop != 1);
+    }
+    return count;
+}
+
+void respawnThings(thingToRespawn* head, Map* currentMap){
+    int stop = 0;
+    if(head != NULL){
+        do {
+            if(head->turnsUntilRespawn == 0){
+                if(head->map == currentMap->level && currentMap->map[head->x][head->y] != 1){
+                    putElementHere(currentMap, head->x, head->y, head->type);
+                }else{
+                    head->turnsUntilRespawn = 1;
+                }
+            }
+            if(head->next != NULL){
+                head = head->next;
+            } else {
+                stop = 1;
+            }
+        } while (stop != 1);
+    }
+}
+
 int fight(Player* player, Monster* monster){
     int ongoing = 1;
     int weaponIndex;
@@ -1183,7 +1222,12 @@ int main() {
     //displayMap(map1);*/
     printf("Welcome to our game! You are represented on the map by a 1, use z, q, s, d to move around, we hope you'll have fun!");
     int inProgress = 1;
+    Map* currentMap;
     do {
 
+        int nbToRespawn = updateTimerToRespawn(thingsToRespawn);
+        if(nbToRespawn > 0){
+            respawnThings(thingsToRespawn, currentMap);
+        }
     } while (inProgress);
 }

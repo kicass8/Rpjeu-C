@@ -89,6 +89,8 @@ int selectheal(Player* player, int nbPotion1, int nbPotion2, int nbPotion3);
 void heal(Player* player, int choice);
 void deletePotion(Player* player, int heal);
 int processOutcome(int outcome);
+int updateTimerToRespawn(thingToRespawn* head);
+void respawnThings(thingToRespawn* head, Map* currentMap);
 PNJ* newPNJ();
 Monster* newMonster(char* name, int id, int HP, int attack, int expDrop);
 Item* newItem(int id, int damage, int durability, int quantity, float protection, int heal);
