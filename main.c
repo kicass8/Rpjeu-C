@@ -56,7 +56,9 @@ void removeFromPlayerInventory(Player* player, int index){
         }
     }
     player->inventoryNextSpace -= 1;
-    player->inventory[9] = NULL;
+    for (int i = player->inventoryNextSpace; i < 10; ++i) {
+        player->inventory[i] = NULL;
+    }
 }
 
 void removeFromPNJInventory(PNJ * pnj, int index){
@@ -68,7 +70,9 @@ void removeFromPNJInventory(PNJ * pnj, int index){
         }
     }
     pnj->inventoryNextSpace -= 1;
-    pnj->inventory[9] = NULL;
+    for (int i = pnj->inventoryNextSpace; i < 10; ++i) {
+        pnj->inventory[i] = NULL;
+    }
 }
 
 //Adds an already initialised Item to a PNJ's inventory.
@@ -78,7 +82,7 @@ void removeFromPNJInventory(PNJ * pnj, int index){
 }*/
 
 //adds a thing to respawn to the respawn linked list
-thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, int* map, int nbturns){
+thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, int map, int nbturns){
     thingToRespawn* newThing = malloc(sizeof(thingToRespawn));
     newThing->type = type;
     newThing->x = x;
@@ -96,7 +100,7 @@ thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, i
     return newThing;
 }
 
-void fight(Player* player, Monster* monster){
+int fight(Player* player, Monster* monster){
     int ongoing = 1;
     int weaponIndex;
     int countWeapon = weaponCheck(player);
@@ -105,43 +109,95 @@ void fight(Player* player, Monster* monster){
     }else{
         weaponIndex = -1;
     }
-    do {
-        int choice = 0;
-        int error = 0;
-        do {
-            weaponIndex != -1? printf("Weapon: Damage: %d, Durability: %d\n", player->inventory[weaponIndex]->damage, player->inventory[weaponIndex]->durability) : printf("You have no weapons, run!");
-            printf("Your hitpoints: %d, Fighting against: %s\n Select an action:\n - Type 1 to attack\n - Type 2 to use a potion\n - Type 3 to attempt to run away\n", player->HP, monster->name);
-            scanf("%d", &choice);
-            error = 0;
-            switch (choice) {
-                case 1:
-                    if(weaponIndex == -1){
-                        printf("You cannot fight with your fists alone!\n");
-                        error = 1;
-                    } else {
-                        ongoing = attack(player, monster, weaponIndex);
-                        break;
-                    }
-                case 2:
-                    heal(player);
-                    break;
-                case 3:
-                    if((rand() % (3 + 1 - 1) + 1) == 1)
-                        ongoing = 0;
-                    break;
-                default:
-                    printf("Select another option!\n");
-                    error = 1;
+    while (ongoing == 1) {
+        ongoing = playerTurn(player, monster, weaponIndex);
+        if(player->inventory[weaponIndex]->durability == 0){
+            removeFromPlayerInventory(player, weaponIndex);
+            int countWeapon = weaponCheck(player);
+            if(countWeapon != 0){
+                weaponIndex = changeWeapon(player);
+            }else{
+                weaponIndex = -1;
             }
-        } while (error == 1);
-        //Dmg monster
-    } while (ongoing);
+        }
+        if(ongoing == 1){
+            ongoing = monsterTurn(monster, player);
+        }
+    }
+    return processOutcome(ongoing);
+}
+
+int processOutcome(int outcome){
+    switch (outcome) {
+        case 0:
+            printf("You were slain in battle! Game over ...\n");
+            return 0;
+        case 2:
+            printf("Ran away successfully, that was close!\n");
+        case 3:
+            return 3;
+        default:
+            printf("Uh oh, something unexpected happened during the fight, this is an error, please report this to us!\n");
+            return -1;
+    }
+}
+
+int monsterTurn(Monster* monster, Player* player){
+    int protectionIndex = 0;
+    float protectionValue = 0;
+    for (int i = 0; i < player->inventoryNextSpace; ++i) {
+        if(player->inventory[i]->protection != -1){
+            if(protectionValue < player->inventory[i]->protection){
+                protectionIndex = i;
+                protectionValue = player->inventory[i]->protection;
+            }
+        }
+    }
+    printf("The %s hits you for %d damage!\n", monster->name, (int)(monster->attack - protectionValue));
+    player->HP -= (int)(monster->attack - protectionValue);
+    if(player->HP <= 0){
+        return 0;
+    }else{
+        return 1;
+    }
+}
+
+int playerTurn(Player* player, Monster* monster, int weaponIndex){
+    int outcome = 1; //Between 0 and 3 (0 = player is dead, 1 = the fight continues, 2 = the player fled, 3 = the monster is dead)
+    int choice = 0;
+    int error = 0;
+    do {
+        weaponIndex != -1? printf("Weapon: Damage: %d, Durability: %d\n", player->inventory[weaponIndex]->damage, player->inventory[weaponIndex]->durability) : printf("You have no weapons, run!");
+        printf("Your hitpoints: %d, Fighting against: %s\n Select an action:\n - Type 1 to attack\n - Type 2 to use a potion\n - Type 3 to attempt to run away\n", player->HP, monster->name);
+        scanf("%d", &choice);
+        error = 0;
+        switch (choice) {
+            case 1:
+                if(weaponIndex == -1){
+                    printf("You cannot fight with your fists alone!\n");
+                    error = 1;
+                } else {
+                    outcome = attack(player, monster, weaponIndex);
+                    break;
+                }
+            case 2:
+                heal(player);
+                break;
+            case 3:
+                (rand() % (3 + 1 - 1) + 1) == 1? outcome = 2 : printf("Failed to run away!\n");
+                break;
+            default:
+                printf("Select another option!\n");
+                error = 1;
+        }
+    } while (error == 1);
+    return outcome;
 }
 
 int weaponCheck(Player* player){
     int count = 0;
     for (int i = 0; i < player->inventoryNextSpace; ++i) {
-        if(player->inventory[i]->damage != 1){
+        if(player->inventory[i]->damage != -1){
             count++;
         }
     }
@@ -155,12 +211,15 @@ int changeWeapon(Player* player){
         error = 0;
         printf("Please choose one of your weapons to equip by typing the corresponding number:\n");
         for (int i = 0; i < player->inventoryNextSpace; ++i) {
-            if(player->inventory[i]->damage != 1){
+            if(player->inventory[i]->damage != -1){
                 printf(" - Damage: %d, Durability: %d . Type %d\n", player->inventory[i]->damage, player->inventory[i]->durability, i);
             }
         }
         scanf("%d", &result);
-        if(player->inventory[result]->damage == -1 || result < 0 || result > 9){
+        printf(player->inventory[result]->damage);
+        if(result < 0 || result >= player->inventoryNextSpace){
+            error = 1;
+        } else if(player->inventory[result]->damage == -1){
             error = 1;
         }
     } while (error != 1);
@@ -168,11 +227,41 @@ int changeWeapon(Player* player){
 }
 
 int attack(Player* player, Monster* monster, int index){
-
+    printf("You hit the monster for %d points of damage!\n", player->inventory[index]->damage);
+    monster->HP -= player->inventory[index]->damage;
+    player->inventory[index]->durability -= 1;
+    if(monster->HP <= 0){
+        printf("The %s has been defeated! Gained %d exp!\n", monster->name, monster->expDrop);
+        player->exp += monster->expDrop;
+        if(player->exp >= player->expToNextLvl){
+            levelUp(player);
+        }
+        return 3;
+    } else {
+        return 1;
+    }
 }
 
 void heal(Player* player){
 
+}
+
+void levelUp(Player* player){
+    player->level += 1;
+    if(player->level > 1 && player->level < 6){
+        player->maxHP += (player->level - 1) * 10;
+        player->HP = player->maxHP;
+    } else if(player->level > 5 && player->level < 9){
+        player->maxHP += 50;
+        player->HP = player->maxHP;
+    } else {
+        player->maxHP += 75;
+        player->HP = player->maxHP;
+    }
+    player->expToNextLvl += 10;
+    player->exp = 0;
+
+    printf("Level up! Reached level %d your max HP is now %d, you have been fully healed.\n", player->level, player->maxHP);
 }
 
 
@@ -341,12 +430,9 @@ int** updateMap(int** map,mapElement* element,int x, int y)
     }
 }
 
-void checkMapElement(Map* pMap, Player* player, int x, int y,thingToRespawn* respawnList){
+void checkMapElement(Map* pMap, Player* player, int x, int y){
     int element = pMap->map[x][y]; //element stored in the player's future position
     int newPosition[2] = {x,y};
-
-    Monster* bossMonster;
-    bossMonster = newMonster("Boss",99,1000,150,350); //must review values
 
     switch(element){
         case -3 : //third zone's portal
@@ -375,7 +461,6 @@ void checkMapElement(Map* pMap, Player* player, int x, int y,thingToRespawn* res
             break;
         case 99 :
             //engage fight with boss
-            fight(player, bossMonster);
             break;
         default:
             //engage fight with monster
@@ -415,20 +500,7 @@ void putElementHere(Map* pMap,int x, int y,int elementID)
 {
     pMap->map[x][y] = elementID;
 }
-
-void movePlayer(Player* player,  Map* pMap, char movement, thingToRespawn* respawnList)
-{
-    switch (movement) {
-        case 'z' :
-            checkMapElement(pMap,player,player->position[0],player->position[1]+1,respawnList);break;
-        case 'q' :
-            checkMapElement(pMap,player,player->position[0]-1,player->position[1],respawnList);break;
-        case 's' :
-            checkMapElement(pMap,player,player->position[0],player->position[1]-1,respawnList);break;
-        case 'd' :
-            checkMapElement(pMap,player,player->position[0]+1,player->position[1],respawnList);break;
-    }
-}
+/*
 //Add the resource to the player inventory and change the position of the player if it's possible
 int getResourse(Player* player, int resource, int** map) {
     //  Check if the inventory is full
@@ -440,32 +512,12 @@ int getResourse(Player* player, int resource, int** map) {
 
     res = useTool(player, resource, findTool(player, resource));
     if (res != -1) { // Look if the player have the tool or not
-        dropResources(resource, player);
-        //addToRespawnList(); // AJOUTER A LA LISTE DE RESPAWN
+       dropResources(resource, player);
         return res;
     } else {
         printf("You don't have the right tool for that.");
         return res;
-
-    }
-}
-
-int checkResource(Player* player, int resource){
-    if(resource >= 3 && resource <= 5){
-
-    }
-    if(resource >= 6 && resource <= 8){
-
-    }
-    if(resource >= 9 && resource <= 11){
-
-    }
-}
-
-int findAxe(Player* player, int resource){
-    Item* keepItem;
-    for(int i = 0; i < player->inventoryNextSpace ; i++){
-        // switch (resource) case 3: toolPosition = player->inventory[id] case 6 : toolPosition = player->inventory[id]
+        
     }
 }
 
@@ -514,7 +566,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 5 :
                 player->inventory[toolPosition]->durability *= 0.10;
                 if (player->inventory[toolPosition]->durability <= 0) {
-                    player->inventory[toolPosition]->id = -1; // remove the tool from the inventory if the durability is equal to 0
+                      player->inventory[toolPosition]->id = -1; // remove the tool from the inventory if the durability is equal to 0
                 }
                 return 1;
             case 6 :
@@ -522,7 +574,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 8 :
                 player->inventory[toolPosition]->durability *= 0.20;
                 if (player->inventory[toolPosition]->durability <= 0) {
-                    player->inventory[toolPosition]->id = -1;
+                      player->inventory[toolPosition]->id = -1;
                 }
                 return 1;
             case 9 :
@@ -530,7 +582,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 11 :
                 player->inventory[toolPosition]->durability *= 0.40;
                 if (player->inventory[toolPosition]->durability <= 0) {
-                    player->inventory[toolPosition]->id = -1;
+                      player->inventory[toolPosition]->id = -1;
                 }
                 return 1;
             default:
@@ -538,7 +590,7 @@ int useTool(Player* player, int resource, int toolPosition){
         }
     }
 }
-/*
+
 // PAS ENCORE AJOUTER LES POTOTYPE
 // Voir comment faire pour chercher la plus petite durablitité PAS SUR
 //int findLowerDurabilityTool(Player* player, int resource){}
@@ -713,7 +765,7 @@ int findPlantTool(Player* player, int resource){
         default:
             break;
     }
-
+    
     return toolPosition;
 }
 
@@ -778,52 +830,46 @@ int findTool(Player* player, int resource){
 
     return toolPosition;
 }
- */
 
 // Display the current PNJ inventory
 void showPNJInventory(PNJ* pnj){
     for(int i = 0 ; i < pnj->inventoryNextSpace ; i++){
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id, pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
+        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i].id, pnj->inventory[i].damage, pnj->inventory[i].durability, pnj->inventory[i].quantity);
     }
 }
 
-// Store an item in the pnj inventory
+
 void storeInPNJInventory(PNJ* pnj, Player* player){
     int choosenItem;
     for(int i = 0 ; i < player->inventoryNextSpace ; i++){
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
+        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i].id, player->inventory[i].damage, player->inventory[i].durability, player->inventory[i].quantity);
     }
     scanf("%d", &choosenItem);
     if(choosenItem >= 0 && choosenItem < player->inventoryNextSpace){
         pnj->inventory[pnj->inventoryNextSpace] = player->inventory[choosenItem];
-        addToPNJInventory(pnj, newItem(player->inventory[choosenItem]->id, player->inventory[choosenItem]->damage,
-                                       player->inventory[choosenItem]->durability,
-                                       player->inventory[choosenItem]->quantity,
-                                       player->inventory[choosenItem]->protection, pnj->inventory[choosenItem]->heal));
-        removeFromPlayerInventory(player, choosenItem);
+        //player->inventory[choosenItem] = -1;
     }
 }
 
-
+// BESOIN DE SHOWINVENTORYPNJ ou pas besoin si on affiche ici ?
 // Take a chosen item from the PNJ inventory
 void takeInPNJInventory(PNJ* pnj, Player* player) {
     int choosenItem;
-    for (int i = 0; i < pnj->inventoryNextSpace; i++) {
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id,
-               pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
+    for (int i = 0; i < player->inventoryNextSpace; i++) {
+        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i].id,
+               pnj->inventory[i].damage, pnj->inventory[i].durability, pnj->inventory[i].quantity);
     }
     scanf("%d", &choosenItem);
     if (choosenItem >= 0 && choosenItem < pnj->inventoryNextSpace) {
-        if (pnj->inventory[choosenItem]->id >= 3 && pnj->inventory[choosenItem]->id <= 11) {
-            addResourseToInventory(pnj->inventory[choosenItem]->id, player,
-                                   pnj->inventory[choosenItem]->quantity); // Call the function to add a resource to the player inventory
-        } else {
-            addToPlayerInventory(player, newItem(pnj->inventory[choosenItem]->id, pnj->inventory[choosenItem]->damage,
-                                                 pnj->inventory[choosenItem]->durability,
-                                                 pnj->inventory[choosenItem]->quantity,
-                                                 pnj->inventory[choosenItem]->protection, pnj->inventory[choosenItem]->heal));
+        if (pnj->inventory[choosenItem].id >= 3 && pnj->inventory[choosenItem].id <= 11) {
+            addResourseToInventory(pnj->inventory[choosenItem].id, player,
+                                   pnj->inventory[choosenItem].quantity); // Call the function to add a resource to the player inventory
         }
-        removeFromPNJInventory(pnj, choosenItem);
+        addToPlayerInventory(player, newItem(pnj->inventory[choosenItem].id, pnj->inventory[choosenItem].damage,
+                                             pnj->inventory[choosenItem].durability,
+                                             pnj->inventory[choosenItem].quantity,
+                                             pnj->inventory[choosenItem].protection, pnj->inventory[choosenItem].heal));
+        //; free(pnj->inventory[choosenItem]);
     }
 }
 
@@ -831,13 +877,13 @@ void repairItem(Player* player){
     int chosenItem;
     printf("choose an item to repair");
     for(int i = 0 ; i < player->inventoryNextSpace ; i++) {
-        if (player->inventory[i]->durability != -1) {
-            printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
+        if (player->inventory[i].durability != -1) {
+            printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i].id, player->inventory[i].damage, player->inventory[i].durability, player->inventory[i].quantity);
         }
     }
     scanf("%d", chosenItem);
-    if(player->inventory[chosenItem]->durability != -1 && chosenItem >= 0 && chosenItem < player->inventoryNextSpace) {
-        player->inventory[chosenItem]->durability = 10; // FAIRE LA DURABILITER EN FONCTION DE L'ITEM
+    if(player->inventory[chosenItem].durability != -1 && chosenItem >= 0 && chosenItem < player->inventoryNextSpace) {
+        player->inventory[chosenItem].durability = 10; // FAIRE LA DURABILITER EN FONCTION DE L'ITEM
     }
 }
 
@@ -857,7 +903,7 @@ void usePNJ(PNJ* pnj, Player* player, int choice){
             interactWithPNJ(pnj, player);
             break;
         case 3:
-            //    displayAvailableCraft();
+        //    displayAvailableCraft();
             interactWithPNJ(pnj, player);
             break;
         case 4:
@@ -879,6 +925,7 @@ void interactWithPNJ(PNJ* pnj, Player* player){
     scanf("\n%d", &choice);
     usePNJ(pnj, player, choice);
 }
+*/
 
 int main() {
     Player* player = initPlayer();
@@ -901,6 +948,8 @@ int main() {
     Monster* monster = newMonster("Dragon", 12, 25, 15, 100);
     printf("Nom du monstre : %s, id : %d, HP : %d, attack : %d, expDrop : %d\n", monster->name, monster->id, monster->HP, monster->attack, monster->expDrop);
 
+    //Combat test
+    printf("Result of the fight: %d", fight(player, monster));
 
     //Test for PNJ creation
     /*PNJ* pnj1 = newPNJ();
@@ -920,7 +969,7 @@ int main() {
     //interactWithPNJ(pnj1);
 
     //test map
-    printf("\n\n");
+    /*printf("\n\n");
 
     //test  = portail 3
     mapElement* firstElement= newMapElement(-3);
@@ -941,7 +990,7 @@ int main() {
     printf("map3 faite\n");
 
     putPortalOnMap(map1,map2,map3);
-    putElementHere(map1,player->position[0],player->position[1],1);
+    putPlayerOnMap(map1,player);
 
     printf("Test d'initialisation des maps\n\n");
     printf("Map niveau 1\n");
