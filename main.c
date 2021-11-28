@@ -523,7 +523,7 @@ int getResourse(Player* player, int resource, int** map) {
     }
     int res;
 
-    res = useTool(player, resource, findTool(player, resource));
+    //res = useTool(player, resource, findTool(player, resource));
     if (res != -1) { // Look if the player have the tool or not
         dropResources(resource, player);
         //addToRespawnList(); // AJOUTER A LA LISTE DE RESPAWN
