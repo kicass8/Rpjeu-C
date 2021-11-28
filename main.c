@@ -205,7 +205,7 @@ int weaponCheck(Player* player){
 }
 
 int changeWeapon(Player* player){
-    int result = 0;
+    int result = -1;
     int error = 0;
     do {
         error = 0;
@@ -215,13 +215,23 @@ int changeWeapon(Player* player){
                 printf(" - Damage: %d, Durability: %d . Type %d\n", player->inventory[i]->damage, player->inventory[i]->durability, i);
             }
         }
-        scanf("%d", &result);
-        if(result < 0 || result >= player->inventoryNextSpace){
-            error = 1;
-        } else if(player->inventory[result]->damage == -1){
+        char input[100];
+        if ( !fgets( input, sizeof input, stdin ) )
+        {
             error = 1;
         }
-    } while (error != 1);
+        else
+        {
+            sscanf(input, "%d", &result);
+        }
+        if(result < 0 || result >= player->inventoryNextSpace){
+            printf("Here1");
+            error = 1;
+        } else if(player->inventory[result]->damage == -1){
+            printf("Here2");
+            error = 1;
+        }
+    } while (error == 1);
     return result;
 }
 
