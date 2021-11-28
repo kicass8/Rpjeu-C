@@ -114,7 +114,7 @@ int isResourceExistInInventory(Player* player, int resource, int nbResource);
 void showPNJInventory(PNJ* pnj);
 void dropResources(int resource, Player* player);
 void interactWithPNJ(PNJ* pnj, Player* player);
-void checkMapElement(Map* pMap, Player* player, int x, int y);
+void checkMapElement(Map* pMap, Player* player, int x, int y, thingToRespawn* respawnList);
 void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3);
 int getRandomNum(int limit);
 void putElementHere(Map* pMap, int x, int y, int elementID);
