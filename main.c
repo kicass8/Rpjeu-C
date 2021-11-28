@@ -33,6 +33,9 @@ Monster* newMonster(char* name, int id, int HP, int attack, int expDrop){
 //Returns a pointer to a PNJ after initialising it with an empty inventory.
 PNJ* newPNJ(){
     PNJ* pnj = malloc(sizeof(PNJ));
+    for (int i = 0; i < 255; ++i) {
+        pnj->inventory[i] = NULL;
+    }
     pnj->inventoryNextSpace = 0;
     return pnj;
 }
@@ -54,6 +57,18 @@ void removeFromPlayerInventory(Player* player, int index){
     }
     player->inventoryNextSpace -= 1;
     player->inventory[9] = NULL;
+}
+
+void removeFromPNJInventory(PNJ * pnj, int index){
+    int j = 0;
+    for (int i = 0; i < pnj->inventoryNextSpace; i++){
+        if(i != index){
+            pnj->inventory[j] = pnj->inventory[i];
+            j++;
+        }
+    }
+    pnj->inventoryNextSpace -= 1;
+    pnj->inventory[9] = NULL;
 }
 
 //Adds an already initialised Item to a PNJ's inventory.
@@ -80,6 +95,86 @@ thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, i
     }
     return newThing;
 }
+
+void fight(Player player, Monster monster){
+    int ongoing = 1;
+    int weaponIndex;
+    int countWeapon = weaponCheck(player);
+    if(countWeapon != 0){
+        weaponIndex = changeWeapon(player);
+    }else{
+        weaponIndex = -1;
+    }
+    do {
+        int choice = 0;
+        int error = 0;
+        do {
+            weaponIndex != -1? printf("Weapon: Damage: %d, Durability: %d\n", player.inventory[weaponIndex]->damage, player.inventory[weaponIndex]->durability) : printf("You have no weapons, run!");
+            printf("Your hitpoints: %d, Fighting against: %s\n Select an action:\n - Type 1 to attack\n - Type 2 to use a potion\n - Type 3 to attempt to run away\n", player.HP, monster.name);
+            scanf("%d", &choice);
+            error = 0;
+            switch (choice) {
+                case 1:
+                    if(weaponIndex == -1){
+                        printf("You cannot fight with your fists alone!\n");
+                        error = 1;
+                    } else {
+                        ongoing = attack(player, monster, weaponIndex);
+                        break;
+                    }
+                case 2:
+                    heal(player);
+                    break;
+                case 3:
+                    if((rand() % (3 + 1 - 1) + 1) == 1)
+                        ongoing = 0;
+                    break;
+                default:
+                    printf("Select another option!\n");
+                    error = 1;
+            }
+        } while (error == 1);
+        //Dmg monster
+    } while (ongoing);
+}
+
+int weaponCheck(Player player){
+    int count = 0;
+    for (int i = 0; i < player.inventoryNextSpace; ++i) {
+        if(player.inventory[i]->damage != 1){
+            count++;
+        }
+    }
+    return count;
+}
+
+int changeWeapon(Player player){
+    int result = 0;
+    int error = 0;
+    do {
+        error = 0;
+        printf("Please choose one of your weapons to equip by typing the corresponding number:\n");
+        for (int i = 0; i < player.inventoryNextSpace; ++i) {
+            if(player.inventory[i]->damage != 1){
+                printf(" - Damage: %d, Durability: %d . Type %d\n", player.inventory[i]->damage, player.inventory[i]->durability, i);
+            }
+        }
+        scanf("%d", &result);
+        if(player.inventory[result]->damage == -1 || result < 0 || result > 9){
+            error = 1;
+        }
+    } while (error != 1);
+    return result;
+}
+
+int attack(Player player, Monster monster, int index){
+
+}
+
+void heal(Player player){
+
+}
+
 
 //To be called at the start of the game. Creates a Player with all the default values it needs.
 Player* initPlayer(){

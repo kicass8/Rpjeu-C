@@ -77,12 +77,18 @@ struct Map {
 typedef struct Map Map;
 
 thingToRespawn* addToRespawnList(thingToRespawn* list,int type, int x, int y, int map, int nbturns);
+void fight(Player player, Monster monster);
+int weaponCheck(Player player);
+int changeWeapon(Player player);
+int attack(Player player, Monster monster, int index);
+void heal(Player player);
 PNJ* newPNJ();
 Monster* newMonster(char* name, int id, int HP, int attack, int expDrop);
 Item* newItem(int id, int damage, int durability, int quantity, float protection, int heal);
 void addToPlayerInventory(Player* player, Item* item);
 void addToPNJInventory(PNJ* pnj, Item* item);
 void removeFromPlayerInventory(Player* player, int index);
+void removeFromPNJInventory(PNJ * pnj, int index);
 Player* initPlayer();
 Map* initMap(int width, int height,int level);
 void displayMap(Map* pMap);
