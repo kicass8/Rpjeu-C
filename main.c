@@ -111,7 +111,7 @@ int fight(Player* player, Monster* monster){
     }
     while (ongoing == 1) {
         ongoing = playerTurn(player, monster, weaponIndex);
-        if(player->inventory[weaponIndex]->durability == 0){
+        if(player->inventory[weaponIndex]->durability == 0 && weaponIndex != -1){
             removeFromPlayerInventory(player, weaponIndex);
             int countWeapon = weaponCheck(player);
             if(countWeapon != 0){
@@ -134,6 +134,7 @@ int processOutcome(int outcome){
             return 0;
         case 2:
             printf("Ran away successfully, that was close!\n");
+            return 2;
         case 3:
             return 3;
         default:
@@ -168,8 +169,16 @@ int playerTurn(Player* player, Monster* monster, int weaponIndex){
     int error = 0;
     do {
         weaponIndex != -1? printf("Weapon: Damage: %d, Durability: %d\n", player->inventory[weaponIndex]->damage, player->inventory[weaponIndex]->durability) : printf("You have no weapons, run!");
-        printf("Your hitpoints: %d, Fighting against: %s\n Select an action:\n - Type 1 to attack\n - Type 2 to use a potion\n - Type 3 to attempt to run away\n", player->HP, monster->name);
-        scanf("%d", &choice);
+        printf("Your hitpoints: %d, Fighting against: %s who has %d HP\n Select an action:\n - Type 1 to attack\n - Type 2 to use a potion\n - Type 3 to attempt to run away\n", player->HP, monster->name, monster->HP);
+        char input[100];
+        if ( !fgets( input, sizeof input, stdin ) )
+        {
+            choice = -1;
+        }
+        else
+        {
+            sscanf(input, "%d", &choice);
+        }
         error = 0;
         switch (choice) {
             case 1:
@@ -181,7 +190,7 @@ int playerTurn(Player* player, Monster* monster, int weaponIndex){
                     break;
                 }
             case 2:
-                heal(player);
+                error = findheal(player);
                 break;
             case 3:
                 (rand() % (3 + 1 - 1) + 1) == 1? outcome = 2 : printf("Failed to run away!\n");
@@ -251,9 +260,92 @@ int attack(Player* player, Monster* monster, int index){
     }
 }
 
-void heal(Player* player){
-
+int findheal(Player* player) {
+    int nbPotion1 = 0;
+    int nbPotion2 = 0;
+    int nbPotion3 = 0;
+    for (int i = 0; i < player->inventoryNextSpace; ++i) {
+        if (player->inventory[i]->heal == 30) {
+            nbPotion1++;
+        } else if (player->inventory[i]->heal == 80) {
+            nbPotion2++;
+        } else if (player->inventory[i]->heal == 200) {
+            nbPotion3++;
+        }
+    }
+    return selectheal(player, nbPotion1, nbPotion2, nbPotion3);
 }
+
+int selectheal(Player* player, int nbPotion1, int nbPotion2, int nbPotion3){
+    int choice = 0;
+    int error = 0;
+    do {
+        if (nbPotion1 != 0 || nbPotion2 != 0 || nbPotion3 != 0) {
+            printf("Select a potion to use: \n");
+            if (nbPotion1 > 0) {
+                printf("Potion I - heals 30 HP (You have %d) - Type 1\n", nbPotion1);
+            }
+            if (nbPotion2 > 0) {
+                printf("Potion II - heals 80 HP (You have %d) - Type 2\n", nbPotion2);
+            }
+            if (nbPotion3 > 0) {
+                printf("Potion III - heals 200 HP (You have %d) - Type 3\n", nbPotion3);
+            }
+            char input[100];
+            if (!fgets(input, sizeof input, stdin)) {
+                error = 1;
+            } else {
+                sscanf(input, "%d", &choice);
+            }
+        } else {
+            printf("You have no potions!\n");
+            return 1;
+        }
+    } while (error);
+    heal(player, choice);
+    printf("Healed successfully!\n");
+    return 0;
+}
+
+void heal(Player* player, int choice){
+    switch (choice) {
+        case 1:
+            if (player->HP + 30 >= player->maxHP) {
+                player->HP = player->maxHP;
+            } else {
+                player->HP += 30;
+            }
+            deletePotion(player, 30);
+            break;
+        case 2:
+            if (player->HP + 80 >= player->maxHP) {
+                player->HP = player->maxHP;
+            } else {
+                player->HP += 80;
+            }
+            deletePotion(player, 80);
+            break;
+        case 3:
+            if (player->HP + 200 >= player->maxHP) {
+                player->HP = player->maxHP;
+            } else {
+                player->HP += 200;
+            }
+            deletePotion(player, 200);
+            break;
+        default:
+            printf("An error occured during the healing process...\n");
+    }
+}
+
+void deletePotion(Player* player, int heal){
+    for (int i = 0; i < player->inventoryNextSpace; ++i) {
+        if (player->inventory[i]->heal == heal) {
+            removeFromPlayerInventory(player, i);
+        }
+    }
+}
+
 
 void levelUp(Player* player){
     player->level += 1;
@@ -992,8 +1084,10 @@ int main() {
     }
 
     //Test for monster creation
-    Monster* monster = newMonster("Dragon", 12, 25, 15, 100);
+    Monster* monster = newMonster("Dragon", 12, 2, 15, 100);
     printf("Nom du monstre : %s, id : %d, HP : %d, attack : %d, expDrop : %d\n", monster->name, monster->id, monster->HP, monster->attack, monster->expDrop);
+
+    addToPlayerInventory(player, newItem(45, -1, -1, -1, -1.0, 30));
 
     //Combat test
     printf("Result of the fight: %d", fight(player, monster));
