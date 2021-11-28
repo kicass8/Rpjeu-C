@@ -137,7 +137,7 @@ void checkMapElement(Map* pMap,Map* pMap1, Map* pMap2, Map* pMap3, Player* playe
 void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3);
 int getRandomNum(int limit);
 void putElementHere(Map* pMap, int x, int y, int elementID);
-int movePlayer(Player* player,  Map* pMap, Map* pMap1, Map* pMap2, Map* pMap3,char movement,thingToRespawn* respawnList, Monster* allMonster);
+int movePlayer(Player* player,  Map* pMap, Map* pMap1, Map* pMap2, Map* pMap3,int movement,thingToRespawn* respawnList, Monster* allMonster);
 void passPortal(Player* player, Map* destination);
 void findPortal(Player* player, int id,Map* pMap);
 #endif //PROJET_C_RPG_H
