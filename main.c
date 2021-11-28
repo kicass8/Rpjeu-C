@@ -1067,30 +1067,60 @@ void interactWithPNJ(PNJ* pnj, Player* player){
 }
 
 int main() {
+    /*Item allItems[] = {
+            *newItem(1,1,10,-1, -1.0, -1),
+            *newItem(2,1,10,-1, -1.0, -1),
+            *newItem(3,1,10,-1, -1.0, -1),
+            *newItem(4,1,10,-1, -1.0, -1),
+            *newItem(5,1,10,-1, -1.0, -1),
+            *newItem(6,1,10,-1, -1.0, -1),
+            *newItem(7,1,10,-1, -1.0, -1),
+            *newItem(8,1,10,-1, -1.0, -1),
+            *newItem(9,1,10,-1, -1.0, -1),
+            *newItem(10,1,10,-1, -1.0, -1),
+            *newItem(11,1,10,-1, -1.0, -1),
+            *newItem(12,1,10,-1, -1.0, -1),
+            *newItem(13,1,10,-1, -1.0, -1),
+            *newItem(14,1,10,-1, -1.0, -1),
+            *newItem(15,1,10,-1, -1.0, -1),
+            *newItem(16,1,10,-1, -1.0, -1),
+            *newItem(17,1,10,-1, -1.0, -1),
+            *newItem(18,1,10,-1, -1.0, -1),
+            *newItem(19,1,10,-1, -1.0, -1),
+            *newItem(20,1,10,-1, -1.0, -1),
+            *newItem(21,1,10,-1, -1.0, -1),
+            *newItem(22,1,10,-1, -1.0, -1),
+            *newItem(23,1,10,-1, -1.0, -1),
+            *newItem(24,1,10,-1, -1.0, -1),
+            *newItem(25,1,10,-1, -1.0, -1),
+            *newItem(26,1,10,-1, -1.0, -1),
+            *newItem(27,1,10,-1, -1.0, -1),
+            *newItem(28,1,10,-1, -1.0, -1),
+            *newItem(29,1,10,-1, -1.0, -1),
+            *newItem(30,1,10,-1, -1.0, -1),
+            *newItem(31,1,10,-1, -1.0, -1),
+            *newItem(32,1,10,-1, -1.0, -1),
+            *newItem(33,1,10,-1, -1.0, -1),
+            *newItem(34,1,10,-1, -1.0, -1),
+    }*/
     Player* player = initPlayer();
+    thingToRespawn* thingsToRespawn = NULL;
+    Monster allMonsters[10];
+    //Zone 1
+    allMonsters[0] = *newMonster("Slime", 12, 3, 5, 25);
+    allMonsters[1] = *newMonster("Goblin", 13, 5, 3, 30);
+    allMonsters[2] = *newMonster("Bat", 14, 2, 1, 10);
+    //Zone 2
+    allMonsters[3] = *newMonster("Orc", 15, 22, 7, 35);
+    allMonsters[4] = *newMonster("Salamander", 16, 28, 12, 35);
+    allMonsters[5] = *newMonster("Plant Monster", 17, 30, 8, 35);
+    //Zone 3
+    allMonsters[6] = *newMonster("Dragon", 18, 75, 30, 70);
+    allMonsters[7] = *newMonster("Succubus", 19, 60, 33, 69);
+    allMonsters[8] = *newMonster("Golem", 20, 100, 15, 65);
+    //Boss
+    allMonsters[9] = *newMonster("Briatte, Sith Lord, ArchDemon, Destroyer of Worlds, and more...", 99, 250, 55, 200);
 
-    //Test to see if initPlayer and the other functions associated work
-    printf("Player's position : %d, %d\n", player->position[0], player->position[1]);
-    for (int i = 0; i < player->inventoryNextSpace; ++i) {
-        printf("Item id: %d, damage: %d, durability: %d\n", player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability);
-    }
-
-    printf("\n");
-
-    //Test to see if removing the second item from the inventory works
-    removeFromPlayerInventory(player, 1);
-    for (int i = 0; i < player->inventoryNextSpace; ++i) {
-        printf("Item id: %d, damage: %d, durability: %d\n", player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability);
-    }
-
-    //Test for monster creation
-    Monster* monster = newMonster("Dragon", 12, 2, 15, 100);
-    printf("Nom du monstre : %s, id : %d, HP : %d, attack : %d, expDrop : %d\n", monster->name, monster->id, monster->HP, monster->attack, monster->expDrop);
-
-    addToPlayerInventory(player, newItem(45, -1, -1, -1, -1.0, 30));
-
-    //Combat test
-    printf("Result of the fight: %d", fight(player, monster));
 
     //Test for PNJ creation
     /*PNJ* pnj1 = newPNJ();
@@ -1158,15 +1188,7 @@ int main() {
 
     //printf("\n\n\n");
     //putElementHere(map1,5,5,2000);
-    //displayMap(map1);
+    //displayMap(map1);*/
+    printf("Welcome to our game! You are represented on the map by a 1, use z, q, s, d to move around, we hope you'll have fun!");
 
-    /*
-    //Test for the linked list of things to respawn
-    thingToRespawn* thingsToRespawn = NULL;
-    thingsToRespawn = addToRespawnList(thingsToRespawn, 3, 1, 1, 1,10);
-    do {
-        printf("Thing -> type : %d, coordinates : {%d, %d} , map : %d, in how many turns : %d\n", thingsToRespawn->type, thingsToRespawn->x, thingsToRespawn->y, thingsToRespawn->map, thingsToRespawn->turnsUntilRespawn);
-        thingsToRespawn = thingsToRespawn->next;
-    }while (thingsToRespawn->next != NULL);
-    */
 }
