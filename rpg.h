@@ -109,6 +109,8 @@ int findPlantTool(Player* player, int resource);
 void addResourseToInventory(int resource, Player* player, int nbResource);
 void takeInPNJInventory(PNJ* pnj, Player* player);
 void storeInPNJInventory(PNJ* pnj, Player* player);
+void usePNJ(PNJ* pnj, Player* player, int choice);
+int isResourceExistInInventory(Player* player, int resource, int nbResource);
 void showPNJInventory(PNJ* pnj);
 void dropResources(int resource, Player* player);
 void interactWithPNJ(PNJ* pnj, Player* player);
