@@ -76,10 +76,10 @@ void removeFromPNJInventory(PNJ * pnj, int index){
 }
 
 //Adds an already initialised Item to a PNJ's inventory.
-/*void addToPNJInventory(PNJ* pnj, Item* item){
-    pnj->inventory[pnj->inventoryNextSpace] = *item;
+void addToPNJInventory(PNJ* pnj, Item* item){
+    pnj->inventory[pnj->inventoryNextSpace] = item;
     pnj->inventoryNextSpace++;
-}*/
+}
 
 //adds a thing to respawn to the respawn linked list
 thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, int map, int nbturns){
