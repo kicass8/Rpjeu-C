@@ -429,7 +429,7 @@ void movePlayer(Player* player,  Map* pMap, char movement, thingToRespawn* respa
             checkMapElement(pMap,player,player->position[0]+1,player->position[1],respawnList);break;
     }
 }
-/Add the resource to the player inventory and change the position of the player if it's possible
+//Add the resource to the player inventory and change the position of the player if it's possible
 int getResourse(Player* player, int resource, int** map) {
     //  Check if the inventory is full
     if (player->inventoryNextSpace >= 10) {
