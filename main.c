@@ -423,7 +423,7 @@ Player* initPlayer(){
     addToPlayerInventory(player, newItem(1, 1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(2, -1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(3, -1, 10, -1, -1, -1));
-    addToPlayerInventory(player, newItem(4, -1, 10, -1, -1, -1));
+    addToPlayerInventory(player, newItem(7, -1, -1, 5, -1, -1));
     for (int i = 4; i < 10; ++i) {
         player->inventory[i] = NULL;
     }
@@ -658,54 +658,40 @@ void movePlayer(Player* player,  Map* pMap, char movement, thingToRespawn* respa
             checkMapElement(pMap,player,player->position[0]+1,player->position[1],respawnList);break;
     }
 }
-//Add the resource to the player inventory and change the position of the player if it's possible
-int getResourse(Player* player, int resource, int** map) {
-    //  Check if the inventory is full
-    if (player->inventoryNextSpace >= 10) {
-        printf("Inventory full ! The ressource will not be collected");
-        return -1; // On return moins 1 s'il veut ne pas collecter la ressource ?
-    }
-    int res;
 
-    //res = useTool(player, resource, findTool(player, resource));
+int checkInventory(Player* player){
+    if (player->inventoryNextSpace >= 10) {
+        return 1;
+    }
+    return 0;
+}
+
+//Add the resource to the player inventory and change the position of the player if it's possible
+int getResourse(Player* player, int resource, Map* pMap, thingToRespawn* head, int x, int y) {
+    //  Check if the inventory is full
+
+    int res;
+    res = useTool(player, resource, findTool(player, resource));
     if (res != -1) { // Look if the player have the tool or not
-        dropResources(resource, player);
-        //addToRespawnList(); // AJOUTER A LA LISTE DE RESPAWN
+        dropResources(resource, player, pMap, head, x, y);
         return res;
     } else {
-        printf("You don't have the right tool for that.");
+        printf("\nYou don't have the right tool for that.\n");
         return res;
 
     }
 }
 
-int checkResource(Player* player, int resource){
-    if(resource >= 3 && resource <= 5){
-
-    }
-    if(resource >= 6 && resource <= 8){
-
-    }
-    if(resource >= 9 && resource <= 11){
-
-    }
-}
-
-int findAxe(Player* player, int resource){
-    Item* keepItem;
-    for(int i = 0; i < player->inventoryNextSpace ; i++){
-        // switch (resource) case 3: toolPosition = player->inventory[id] case 6 : toolPosition = player->inventory[id]
-    }
-}
 
 // Check if the resource exist in the player inventory to stack it
 int isResourceExistInInventory(Player* player, int resource, int nbResource){
     for(int i = 0 ; i < player->inventoryNextSpace ; i++){
         if(player->inventory[i]->id == resource){
             if(player->inventory[i]->quantity < 20){
-                while(player->inventory[i]->quantity < 20 || nbResource != 0){
+                while(player->inventory[i]->quantity < 20){
                     player->inventory[i]->quantity++;
                     nbResource--;
+
                 }
             }
         }
@@ -713,15 +699,71 @@ int isResourceExistInInventory(Player* player, int resource, int nbResource){
     return nbResource;
 }
 
+int dropPlant(Map* pMap, int resource){
+    if( resource == 3 || resource == 6 || resource == 9){
+        if(pMap->level == 1){
+            return 7;
+        }
+        if(pMap->level == 2){
+            return 18;
+        }
+        if(pMap->level == 3){
+            return 29;
+        }
+    }
+    return -1;
+}
+
+int dropRock(Map* pMap, int resource, int dropres){
+    if( resource == 4 || resource == 7 || resource == 10){
+        if(pMap->level == 1){
+            return 6;
+        }
+        if(pMap->level == 2){
+            return 17;
+        }
+        if(pMap->level == 3){
+            return 28;
+        }
+    }
+    return dropres;
+}
+
+int dropWood(Map* pMap, int resource, int dropres){
+    if( resource == 5 || resource == 8 || resource == 11){
+        if(pMap->level == 1){
+            return 5;
+        }
+        if(pMap->level == 2){
+            return 16;
+        }
+        if(pMap->level == 3){
+            return 27;
+        }
+    }
+    return dropres;
+}
+
+
 // Add random resource to the player inventory
-void dropResources(int resource, Player* player){
+void dropResources(int resource, Player* player, Map* pMap, thingToRespawn* head, int x, int y){
+    int checkinventory = checkInventory(player);
     int randResources = rand()% 4 + 1;
+    int dropresource = dropPlant(pMap, resource);
+    dropresource = dropRock(pMap, resource, dropresource);
+    dropresource = dropWood(pMap, resource, dropresource);
     int nbResource;
-    nbResource = isResourceExistInInventory(player, resource, randResources); // check if the player already have the resource, if yes stack it
+    nbResource = isResourceExistInInventory(player, dropresource, randResources); // check if the player already have the resource, if yes stack it
     if(nbResource != 0){
-        Item* item;
-        item = newItem(resource, -1, -1, nbResource, -1, -1);// Create a new item with the ressource
-        addToPlayerInventory(player, item); // add it to the player inventory
+        if(checkinventory == 0){
+            Item* item;
+            item = newItem(dropresource, -1, -1, nbResource, -1, -1);// Create a new item with the ressource
+            addToPlayerInventory(player, item); // add it to the player inventory
+            thingToRespawn* lasThingToRespawn = NULL;
+            lasThingToRespawn = addToRespawnList(head, resource, x, y, pMap->level,10);
+        } else {
+            printf("\nYour inventory is full \n");
+        }
     }
 }
 
@@ -733,6 +775,7 @@ void addResourseToInventory(int resource, Player* player, int nbResource){
         item = newItem(resource, -1, -1, res, -1, -1);// Create a new item with the ressource
         addToPlayerInventory(player, item); // add it to the player inventory
     }
+
 }
 //  when the player use a tool the function decrease the durability of the tool
 int useTool(Player* player, int resource, int toolPosition){
@@ -741,7 +784,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 3 :
             case 4 :
             case 5 :
-                player->inventory[toolPosition]->durability *= 0.10;
+                player->inventory[toolPosition]->durability -= 1;
                 if (player->inventory[toolPosition]->durability <= 0) {
                     player->inventory[toolPosition]->id = -1; // remove the tool from the inventory if the durability is equal to 0
                 }
@@ -749,7 +792,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 6 :
             case 7 :
             case 8 :
-                player->inventory[toolPosition]->durability *= 0.20;
+                player->inventory[toolPosition]->durability -= 2;
                 if (player->inventory[toolPosition]->durability <= 0) {
                     player->inventory[toolPosition]->id = -1;
                 }
@@ -757,7 +800,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 9 :
             case 10 :
             case 11 :
-                player->inventory[toolPosition]->durability *= 0.40;
+                player->inventory[toolPosition]->durability -= 4;
                 if (player->inventory[toolPosition]->durability <= 0) {
                     player->inventory[toolPosition]->id = -1;
                 }
@@ -766,11 +809,8 @@ int useTool(Player* player, int resource, int toolPosition){
                 return -1;
         }
     }
+    return -1;
 }
-/*
-// PAS ENCORE AJOUTER LES POTOTYPE
-// Voir comment faire pour chercher la plus petite durablitité PAS SUR
-//int findLowerDurabilityTool(Player* player, int resource){}
 
 int findPlantToolZone3(Player* player){
     int toolPosition = -1;
@@ -792,11 +832,11 @@ int findPlantToolZone3(Player* player){
 int findPlantToolZone2(Player* player){
     int toolPosition = -1;
     for(int i = 0; i < player->inventoryNextSpace; i++){
-        if(player->inventory[i].id == 13 || player->inventory[i].id == 24){
+        if(player->inventory[i]->id == 13 || player->inventory[i]->id == 24){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 24 || player->inventory[i].id == 13 && player->inventory[j].id == 24 || player->inventory[j].id == 13){
-                    if(player->inventory[i].durability > player->inventory[j].durability){
+                if(player->inventory[i]->id == 24 || player->inventory[i]->id == 13 && player->inventory[j]->id == 24 || player->inventory[j]->id == 13){
+                    if(player->inventory[i]->durability > player->inventory[j]->durability){
                         toolPosition = j;
                     }
                 }
@@ -809,11 +849,11 @@ int findPlantToolZone2(Player* player){
 int findPlantToolZone1(Player* player){
     int toolPosition = -1;
     for(int i = 0; i < player->inventoryNextSpace; i++){
-        if(player->inventory[i].id == 13 || player->inventory[i].id == 24 || player->inventory[i].id == 3){
+        if(player->inventory[i]->id == 13 || player->inventory[i]->id == 24 || player->inventory[i]->id == 3){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 24 || player->inventory[i].id == 13 || player->inventory[i].id == 3 && player->inventory[j].id == 24 || player->inventory[j].id == 13 || player->inventory[j].id == 3){
-                    if(player->inventory[i].durability > player->inventory[j].durability){
+                if(player->inventory[i]->id == 24 || player->inventory[i]->id == 13 || player->inventory[i]->id == 3 && player->inventory[j]->id == 24 || player->inventory[j]->id == 13 || player->inventory[j]->id == 3){
+                    if(player->inventory[i]->durability > player->inventory[j]->durability){
                         toolPosition = j;
                     }
                 }
@@ -826,11 +866,11 @@ int findPlantToolZone1(Player* player){
 int findRockToolZone3(Player* player){
     int toolPosition = -1;
     for(int i = 0; i < player->inventoryNextSpace; i++){
-        if(player->inventory[i].id == 23){
+        if(player->inventory[i]->id == 23){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 23 && player->inventory[j].id == 23){
-                    if(player->inventory[i].durability > player->inventory[j].durability){
+                if(player->inventory[i]->id == 23 && player->inventory[j]->id == 23){
+                    if(player->inventory[i]->durability > player->inventory[j]->durability){
                         toolPosition = j;
                     }
                 }
@@ -843,11 +883,11 @@ int findRockToolZone3(Player* player){
 int findRockToolZone2(Player* player){
     int toolPosition = -1;
     for(int i = 0; i < player->inventoryNextSpace; i++){
-        if(player->inventory[i].id == 23 || player->inventory[i].id == 12){
+        if(player->inventory[i]->id == 23 || player->inventory[i]->id == 12){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 23 || player->inventory[i].id == 12 && player->inventory[j].id == 23 || player->inventory[j].id == 12){
-                    if(player->inventory[i].durability > player->inventory[j].durability){
+                if(player->inventory[i]->id == 23 || player->inventory[i]->id == 12 && player->inventory[j]->id == 23 || player->inventory[j]->id == 12){
+                    if(player->inventory[i]->durability > player->inventory[j]->durability){
                         toolPosition = j;
                     }
                 }
@@ -860,11 +900,11 @@ int findRockToolZone2(Player* player){
 int findRockToolZone1(Player* player){
     int toolPosition = -1;
     for(int i = 0; i < player->inventoryNextSpace; i++){
-        if(player->inventory[i].id == 23 || player->inventory[i].id == 12 || player->inventory[i].id == 2){
+        if(player->inventory[i]->id == 23 || player->inventory[i]->id == 12 || player->inventory[i]->id == 2){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 23 || player->inventory[i].id == 12 || player->inventory[i].id == 2 && player->inventory[j].id == 23 || player->inventory[j].id == 12 || player->inventory[j].id == 2){
-                    if(player->inventory[i].durability > player->inventory[j].durability){
+                if(player->inventory[i]->id == 23 || player->inventory[i]->id == 12 || player->inventory[i]->id == 2 && player->inventory[j]->id == 23 || player->inventory[j]->id == 12 || player->inventory[j]->id == 2){
+                    if(player->inventory[i]->durability > player->inventory[j]->durability){
                         toolPosition = j;
                     }
                 }
@@ -877,11 +917,11 @@ int findRockToolZone1(Player* player){
 int findWoodToolZone3(Player* player){
     int toolPosition = -1;
     for(int i = 0; i < player->inventoryNextSpace; i++){
-        if(player->inventory[i].id == 25){
+        if(player->inventory[i]->id == 25){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 25 && player->inventory[j].id == 25){
-                    if(player->inventory[i].durability > player->inventory[j].durability){
+                if(player->inventory[i]->id == 25 && player->inventory[j]->id == 25){
+                    if(player->inventory[i]->durability > player->inventory[j]->durability){
                         toolPosition = j;
                     }
                 }
@@ -894,11 +934,11 @@ int findWoodToolZone3(Player* player){
 int findWoodToolZone2(Player* player){
     int toolPosition = -1;
     for(int i = 0; i < player->inventoryNextSpace; i++){
-        if(player->inventory[i].id == 25 || player->inventory[i].id == 14){
+        if(player->inventory[i]->id == 25 || player->inventory[i]->id == 14){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 25 || player->inventory[i].id == 14 && player->inventory[j].id == 25 || player->inventory[j].id == 14){
-                    if(player->inventory[i].durability > player->inventory[j].durability){
+                if(player->inventory[i]->id == 25 || player->inventory[i]->id == 14 && player->inventory[j]->id == 25 || player->inventory[j]->id == 14){
+                    if(player->inventory[i]->durability > player->inventory[j]->durability){
                         toolPosition = j;
                     }
                 }
@@ -911,11 +951,11 @@ int findWoodToolZone2(Player* player){
 int findWoodToolZone1(Player* player){
     int toolPosition = -1;
     for(int i = 0; i < player->inventoryNextSpace; i++){
-        if(player->inventory[i].id == 25 || player->inventory[i].id == 14 || player->inventory[i].id == 4){
+        if(player->inventory[i]->id == 25 || player->inventory[i]->id == 14 || player->inventory[i]->id == 4){
             toolPosition = i;
             for(int j = i + 1; j < player->inventoryNextSpace; j++){
-                if(player->inventory[i].id == 25 || player->inventory[i].id == 14 || player->inventory[i].id == 4 && player->inventory[j].id == 25 || player->inventory[j].id == 14 || player->inventory[j].id == 4){
-                    if(player->inventory[i].durability > player->inventory[j].durability){
+                if(player->inventory[i]->id == 25 || player->inventory[i]->id == 14 || player->inventory[i]->id == 4 && player->inventory[j]->id == 25 || player->inventory[j]->id == 14 || player->inventory[j]->id == 4){
+                    if(player->inventory[i]->durability > player->inventory[j]->durability){
                         toolPosition = j;
                     }
                 }
@@ -1007,106 +1047,142 @@ int findTool(Player* player, int resource){
 
     return toolPosition;
 }
- */
 
 // Display the current PNJ inventory
-void showPNJInventory(PNJ* pnj){
+void showPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems){
     for(int i = 0 ; i < pnj->inventoryNextSpace ; i++){
         printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id, pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
     }
+    interactWithPNJ(pnj, player, allDurabilityItems);
 }
 
 // Store an item in the pnj inventory
-void storeInPNJInventory(PNJ* pnj, Player* player){
+void storeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems){
     int choosenItem;
-    for(int i = 0 ; i < player->inventoryNextSpace ; i++){
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
-    }
-    scanf("%d", &choosenItem);
-    if(choosenItem >= 0 && choosenItem < player->inventoryNextSpace){
-        pnj->inventory[pnj->inventoryNextSpace] = player->inventory[choosenItem];
-        addToPNJInventory(pnj, newItem(player->inventory[choosenItem]->id, player->inventory[choosenItem]->damage,
-                                       player->inventory[choosenItem]->durability,
-                                       player->inventory[choosenItem]->quantity,
-                                       player->inventory[choosenItem]->protection, pnj->inventory[choosenItem]->heal));
-        removeFromPlayerInventory(player, choosenItem);
+    char input[2];
+    fflush(stdin);
+    if(player->inventoryNextSpace != 0) {
+        printf("\nchoose an item to store :\n");
+        for (int i = 0; i < player->inventoryNextSpace; i++) {
+            printf(" (%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i]->id,
+                   player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
+        }
+
+        if (!fgets(input, sizeof input, stdin)) {
+            printf("Please enter a correct value");
+            storeInPNJInventory(pnj, player, allDurabilityItems);
+        } else {
+            sscanf(input, "%d", &choosenItem);
+        }
+        if (choosenItem >= 0 && choosenItem < player->inventoryNextSpace) {
+            pnj->inventory[pnj->inventoryNextSpace] = player->inventory[choosenItem];
+            addToPNJInventory(pnj, newItem(player->inventory[choosenItem]->id, player->inventory[choosenItem]->damage,
+                                           player->inventory[choosenItem]->durability,
+                                           player->inventory[choosenItem]->quantity,
+                                           player->inventory[choosenItem]->protection,
+                                           pnj->inventory[choosenItem]->heal));
+            removeFromPlayerInventory(player, choosenItem);
+            printf("\nTransfer success !\n");
+        }
+    } else {
+        printf("\nYou don't have anything to store..\n");
     }
 }
 
 
+
 // Take a chosen item from the PNJ inventory
-void takeInPNJInventory(PNJ* pnj, Player* player) {
+void takeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems) {
     int choosenItem;
+    int checkinventory;
+    char input[2];
+    fflush(stdin);
     for (int i = 0; i < pnj->inventoryNextSpace; i++) {
         printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id,
                pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
     }
-    scanf("%d", &choosenItem);
+    if ( !fgets( input, sizeof input, stdin ) )
+    {
+        printf("Please enter a correct value");
+    }
+    else
+    {
+        sscanf(input, "%d", &choosenItem);
+    }
     if (choosenItem >= 0 && choosenItem < pnj->inventoryNextSpace) {
-        if (pnj->inventory[choosenItem]->id >= 3 && pnj->inventory[choosenItem]->id <= 11) {
+        if ((pnj->inventory[choosenItem]->id >= 5 && pnj->inventory[choosenItem]->id <= 7) || (pnj->inventory[choosenItem]->id >= 16 && pnj->inventory[choosenItem]->id <= 18) || (pnj->inventory[choosenItem]->id >= 27 && pnj->inventory[choosenItem]->id <= 30)) {
             addResourseToInventory(pnj->inventory[choosenItem]->id, player,
                                    pnj->inventory[choosenItem]->quantity); // Call the function to add a resource to the player inventory
         } else {
-            addToPlayerInventory(player, newItem(pnj->inventory[choosenItem]->id, pnj->inventory[choosenItem]->damage,
-                                                 pnj->inventory[choosenItem]->durability,
-                                                 pnj->inventory[choosenItem]->quantity,
-                                                 pnj->inventory[choosenItem]->protection, pnj->inventory[choosenItem]->heal));
+            checkinventory = checkInventory(player);
+            if(checkinventory == 0){
+                addToPlayerInventory(player, newItem(pnj->inventory[choosenItem]->id, pnj->inventory[choosenItem]->damage,
+                                                     pnj->inventory[choosenItem]->durability,
+                                                     pnj->inventory[choosenItem]->quantity,
+                                                     pnj->inventory[choosenItem]->protection, pnj->inventory[choosenItem]->heal));
+            } else {
+                printf("your inventory is full");
+            }
         }
         removeFromPNJInventory(pnj, choosenItem);
     }
+    interactWithPNJ(pnj, player, allDurabilityItems);
 }
 
-void repairItem(Player* player){
-    int chosenItem;
-    printf("choose an item to repair");
-    for(int i = 0 ; i < player->inventoryNextSpace ; i++) {
-        if (player->inventory[i]->durability != -1) {
-            printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
+void repairItem(Player* player, Item* allDurabilityItems){
+    for(int i = 0 ; i < player->inventoryNextSpace ; i++){
+        if(player->inventory[i]->durability != 1){
+            for(int j = 0 ; j < 19 ; j++){
+                if(allDurabilityItems[j].id == player->inventory[i]->id){
+                    player->inventory[i]->durability = allDurabilityItems[j].durability;
+                }
+            }
         }
     }
-    scanf("%d", chosenItem);
-    if(player->inventory[chosenItem]->durability != -1 && chosenItem >= 0 && chosenItem < player->inventoryNextSpace) {
-        player->inventory[chosenItem]->durability = 10; // FAIRE LA DURABILITER EN FONCTION DE L'ITEM
-    }
+    printf("\n Repair complete !\n");
 }
 
 //  Use to interact with PNJ
-void usePNJ(PNJ* pnj, Player* player, int choice){
+void usePNJ(PNJ* pnj, Player* player, int choice, Item* allDurabilityItems){
     switch (choice) {
         case 0:
             showPNJInventory(pnj);
-            interactWithPNJ(pnj, player); // Display the PNJ menu again
+            interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
             break;
         case 1:
-            takeInPNJInventory(pnj, player);
-            interactWithPNJ(pnj, player);
+            takeInPNJInventory(pnj, player, allDurabilityItems);
+            interactWithPNJ(pnj, player, allDurabilityItems);
             break;
         case 2:
-            storeInPNJInventory(pnj, player);
-            interactWithPNJ(pnj, player);
+            storeInPNJInventory(pnj, player, allDurabilityItems);
+            interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
             break;
         case 3:
-            //    displayAvailableCraft();
-            interactWithPNJ(pnj, player);
-            break;
-        case 4:
-            repairItem(player);
-            interactWithPNJ(pnj, player);
-            break;
-        case 5: // If the player put 5 that cancel the PNJ menu
+            repairItem(player, allDurabilityItems);
+            interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
             break;
         default:
-            interactWithPNJ(pnj, player);
             break;
     }
+
 }
 
 //  Display the menu to interact with the PNJ
-void interactWithPNJ(PNJ* pnj, Player* player){
-    printf("\n Display PNJ inventory (0)\n Take an Item (1) \n Store an Item (2) \n Display available Craft (3) \n Repair an Item (4) \n Cancel (5)");
+void interactWithPNJ(PNJ* pnj, Player* player, Item* allDurabilityItems){
+    printf("\n Display PNJ inventory (0)\n Take an item (1) \n Store an item (2) \n Repair all items (3) \n Cancel (4)\n");
     int choice;
-    scanf("\n%d", &choice);
-    usePNJ(pnj, player, choice);
+    char input[2];
+    fflush(stdin);
+    if ( !fgets( input, sizeof input, stdin ) )
+    {
+        printf("Please enter a correct value");
+        storeInPNJInventory(pnj, player, allDurabilityItems);
+    }
+    else
+    {
+        sscanf(input, "%d", &choice);
+        usePNJ(pnj, player, choice, allDurabilityItems);
+    }
 }
 
 int main() {
@@ -1152,13 +1228,38 @@ int main() {
     //Boss
     allMonsters[9] = *newMonster("Briatte, Sith Lord, ArchDemon, Destroyer of Worlds, and more...", 99, 250, 55, 200);
 
+    printf("\n");
+
+    //Test to see if removing the second item from the inventory works
+    removeFromPlayerInventory(player, 1);
+    for (int i = 0; i < player->inventoryNextSpace; ++i) {
+        printf("Item id: %d, damage: %d, durability: %d\n", player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability);
+    }
+
+    //Test for monster creation
+    Monster* monster = newMonster("Dragon", 12, 2, 15, 100);
+    //printf("Nom du monstre : %s, id : %d, HP : %d, attack : %d, expDrop : %d\n", monster->name, monster->id, monster->HP, monster->attack, monster->expDrop);
+
+    //addToPlayerInventory(player, newItem(45, -1, -1, -1, -1.0, 30));
+
+    //Combat test
+    //printf("Result of the fight: %d", fight(player, monster));
 
     //Test for PNJ creation
-    /*PNJ* pnj1 = newPNJ();
+    PNJ* pnj1 = newPNJ();
     addToPNJInventory(pnj1, newItem(1, 1, 10, -1, -1, -1));
     addToPNJInventory(pnj1, newItem(3, -1, -1, 5, -1, -1));
-    addToPNJInventory(pnj1, newItem(4, -1, -1, 5, -1, -1));*/
+    addToPNJInventory(pnj1, newItem(4, -1, -1, 5, -1, -1));
+    addToPNJInventory(pnj1, newItem(7, -1, -1, 17, -1, -1));
+    addToPNJInventory(pnj1, newItem(7, -1, -1, 5, -1, -1));
+    addToPNJInventory(pnj1, newItem(16, -1, -1, 5, -1, -1));
 
+    interactWithPNJ(pnj1, player, allDurabilityItems);
+    Map* map1 = initMap(10,15,1);
+    getResourse(player, 3, map1, thingsToRespawn, 5, 5);
+    for (int i = 0; i < player->inventoryNextSpace; ++i) {
+        printf("Item id: %d, damage: %d, durability: %d, Quantity: %d\n", player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
+    }
     printf("\n---------------------------\n");
 
     //showPNJInventory(pnj1);
