@@ -1146,7 +1146,7 @@ void repairItem(Player* player, Item* allDurabilityItems){
 void usePNJ(PNJ* pnj, Player* player, int choice, Item* allDurabilityItems){
     switch (choice) {
         case 0:
-            showPNJInventory(pnj);
+            showPNJInventory(pnj, player, allDurabilityItems);
             interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
             break;
         case 1:

@@ -117,7 +117,7 @@ void takeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems);
 void storeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems);
 void usePNJ(PNJ* pnj, Player* player, int choice, Item* allDurabilityItems);
 int isResourceExistInInventory(Player* player, int resource, int nbResource);
-void showPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems)
+void showPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems);
 void dropResources(int resource, Player* player, Map* pMap, thingToRespawn* head, int x, int y);
 void interactWithPNJ(PNJ* pnj, Player* player, Item* allDurabilityItems);
 void checkMapElement(Map* pMap, Player* player, int x, int y, thingToRespawn* respawnList);
