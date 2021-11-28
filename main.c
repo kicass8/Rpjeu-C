@@ -216,7 +216,6 @@ int changeWeapon(Player* player){
             }
         }
         scanf("%d", &result);
-        printf(player->inventory[result]->damage);
         if(result < 0 || result >= player->inventoryNextSpace){
             error = 1;
         } else if(player->inventory[result]->damage == -1){
