@@ -177,7 +177,6 @@ int processOutcome(int outcome){
             return 0;
         case 2:
             printf("Ran away successfully, that was close!\n");
-            return 2;
         case 3:
             return 3;
         default:
@@ -408,7 +407,6 @@ void levelUp(Player* player){
     printf("Level up! Reached level %d your max HP is now %d, you have been fully healed.\n", player->level, player->maxHP);
 }
 
-
 //To be called at the start of the game. Creates a Player with all the default values it needs.
 Player* initPlayer(){
     Player* player = malloc(sizeof(Player));
@@ -418,8 +416,9 @@ Player* initPlayer(){
     player->HP = 100;
     player->maxHP = 100;
     player->inventoryNextSpace = 0;
-    int position[2] = {0, 0};
-    player->position = position;
+    //int position[2] = {0, 0};
+    player->position[0] = 0;
+    player->position[1] = 0;
     addToPlayerInventory(player, newItem(1, 1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(2, -1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(3, -1, 10, -1, -1, -1));
@@ -574,19 +573,22 @@ int** updateMap(int** map,mapElement* element,int x, int y)
     }
 }
 
-void checkMapElement(Map* pMap, Player* player, int x, int y, thingToRespawn* respawnList){
+void checkMapElement(Map* pMap,Map* pMap1, Map* pMap2, Map* pMap3, Player* player, int x, int y, thingToRespawn* respawnList, Monster* allMonsters){
     int element = pMap->map[x][y]; //element stored in the player's future position
-    int newPosition[2] = {x,y};
+    int resultFight;
 
     switch(element){
-        case -3 : //third zone's portal
+        case -3 : passPortal(player, pMap3);
             break;
-        case -2 : //second zone's portal
+        case -2 : passPortal(player, pMap2);
             break;
-        case -1 : //first zone's portal
+        case -1 : passPortal(player, pMap1);
             break;
         case 0 : //change player's position
-            player->position = newPosition;
+            addToRespawnList(respawnList,pMap->map[x][y],x,y,pMap->level,10);
+            player->position[0] = x;
+            player->position[1] = y;
+            putElementHere(pMap,x,y,1);
             break;
         case 2 : //interact with PNJ
             //instructions
@@ -600,14 +602,39 @@ void checkMapElement(Map* pMap, Player* player, int x, int y, thingToRespawn* re
         case 9 :
         case 10 :
         case 11 :
-            //getResourse(player, x, y,1,map);
-            //addToRespawnList();
+            //getResourse(player,element,pMap->map);
+            getResourse(player, element,pMap,respawnList,x,y);
             break;
         case 99 :
             //engage fight with boss
+            resultFight = fight(player, &allMonsters[9]);
+            switch (resultFight) {
+                case 3 : //monster has been slain
+                //end of game
+                case -1 :
+                    printf("An error has occur. Sorry for the inconvenience");
+                default:
+                    break;
+            }
             break;
         default:
             //engage fight with monster
+            for(int i=0;i<10;i++){
+                if(allMonsters[i].id==element){
+                    resultFight = fight(player,&allMonsters[i]);
+                    switch (resultFight) {
+                        case 3 : //monster has been slain
+                            addToRespawnList(respawnList,element,x,y,pMap->level,15);
+                            player->position[0] = x;
+                            player->position[1] = y;
+                            putElementHere(pMap,x,y,1);
+                        case -1 :
+                            printf("An error has occur. Sorry for the inconvenience");
+                        default:
+                            break;
+                    }
+                }
+            }
             break;
     }
 }
@@ -645,19 +672,91 @@ void putElementHere(Map* pMap,int x, int y,int elementID)
     pMap->map[x][y] = elementID;
 }
 
-void movePlayer(Player* player,  Map* pMap, char movement, thingToRespawn* respawnList)
+int movePlayer(Player* player,  Map* pMap, Map* pMap1, Map* pMap2, Map* pMap3,char movement,thingToRespawn* respawnList, Monster* allMonster)
 {
     switch (movement) {
         case 'z' :
-            checkMapElement(pMap,player,player->position[0],player->position[1]+1,respawnList);break;
+            if((player->position[0]>0) && (player->position[0]<=pMap->width) &&(player->position[1]>0) && (player->position[1]<=pMap->height)){
+                checkMapElement(pMap,pMap1, pMap2, pMap3, player,player->position[0],player->position[1]+1,respawnList,allMonster);
+                return(1);
+            }else{
+                return(-1);
+            }
         case 'q' :
-            checkMapElement(pMap,player,player->position[0]-1,player->position[1],respawnList);break;
+            if((player->position[0]>0) && (player->position[0]<=pMap->width) &&(player->position[1]>0) && (player->position[1]<=pMap->height)){
+                checkMapElement(pMap,pMap1, pMap2, pMap3,player,player->position[0]-1,player->position[1],respawnList,allMonster);
+                return(1);
+            }else{
+                return(-1);
+            }
         case 's' :
-            checkMapElement(pMap,player,player->position[0],player->position[1]-1,respawnList);break;
+            if((player->position[0]>0) && (player->position[0]<=pMap->width) &&(player->position[1]>0) && (player->position[1]<=pMap->height)){
+                checkMapElement(pMap,pMap1, pMap2, pMap3,player,player->position[0],player->position[1]-1,respawnList,allMonster);
+                return(1);
+            }else{
+                return(-1);
+            }
         case 'd' :
-            checkMapElement(pMap,player,player->position[0]+1,player->position[1],respawnList);break;
+            if((player->position[0]>0) && (player->position[0]<=pMap->width) &&(player->position[1]>0) && (player->position[1]<=pMap->height)){
+                checkMapElement(pMap,pMap1, pMap2, pMap3,player,player->position[0]+1,player->position[1],respawnList, allMonster);
+                return(1);
+            }else{
+                return(-1);
+            }
+        default:
+            return(0);
     }
 }
+
+void passPortal(Player* player, Map* destination){
+    switch(destination->level){
+        case 1 :
+            if(player->level >= 3){
+                //go
+                //player->position[0] = findPortal(player,-2,destination)[0];
+                //player->position[1] = findPortal(player-2,destination)[1];
+                findPortal(player,-2,destination);
+            }
+            else {
+                printf("you are not allowed to acces this area");
+            }
+        case 2 :
+            if((player->level >3) && (player->level <=7)){
+                //go
+                //player->position[0] = findPortal(-2,destination)[0];
+                //player->position[1] = findPortal(-2,destination)[1];
+                findPortal(player,-2,destination);
+            }
+            else {
+                printf("you are not allowed to acces this area");
+            }//if player's level >3 and <=7 GO else NO GO
+        case 3 :
+            if((player->level >7) && (player->level <=10)){
+                //go
+                //player->position[0] = findPortal(-3,destination)[0];
+                //player->position[1] = findPortal(-3,destination)[1];
+                findPortal(player,-3,destination);
+            }
+            else {
+                printf("you are not allowed to acces this area");
+            }//if player's level >7 and <=10 GO else NO GO
+    }
+}
+
+void findPortal(Player* player, int id,Map* pMap){
+    for(int i=0 ;i<pMap->height ; i++){
+        for(int j=0 ; j<pMap->width ; j++){
+            if(pMap->map[i][j]==id)
+            {
+                //portalPosition[0]=i;
+                //portalPosition[1]=j;
+                player->position[0]=i;
+                player->position[1]=j;
+            }
+        }
+    }
+}
+
 
 int checkInventory(Player* player){
     if (player->inventoryNextSpace >= 10) {
@@ -1184,10 +1283,11 @@ void interactWithPNJ(PNJ* pnj, Player* player, Item* allDurabilityItems){
         usePNJ(pnj, player, choice, allDurabilityItems);
     }
 }
-
 int main() {
-    Item allDurabilityItems[] = {
+    Item allDurabilityItems[] = {};
             //Weapons
+
+    Item allItems[] = {
             *newItem(1,1,10,-1, -1.0, -1),
             *newItem(8,2,10,-1, -1.0, -1),
             *newItem(9,3,8,-1, -1.0, -1),
@@ -1211,7 +1311,9 @@ int main() {
     };
 
     Player* player = initPlayer();
+
     thingToRespawn* thingsToRespawn = NULL;
+
     Monster allMonsters[10];
     //Zone 1
     allMonsters[0] = *newMonster("Slime", 12, 3, 5, 25);
@@ -1244,7 +1346,7 @@ int main() {
 
     //Combat test
     //printf("Result of the fight: %d", fight(player, monster));
-
+/*
     //Test for PNJ creation
     PNJ* pnj1 = newPNJ();
     addToPNJInventory(pnj1, newItem(1, 1, 10, -1, -1, -1));
@@ -1260,7 +1362,7 @@ int main() {
     for (int i = 0; i < player->inventoryNextSpace; ++i) {
         printf("Item id: %d, damage: %d, durability: %d, Quantity: %d\n", player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
     }
-    printf("\n---------------------------\n");
+    //printf("\n---------------------------\n");
 
     //showPNJInventory(pnj1);
 
@@ -1322,13 +1424,46 @@ int main() {
     //putElementHere(map1,5,5,2000);
     //displayMap(map1);*/
     printf("Welcome to our game! You are represented on the map by a 1, use z, q, s, d to move around, we hope you'll have fun!");
+    thingToRespawn* respawnList = NULL;
     int inProgress = 1;
     Map* currentMap;
+    Map* map1 = initMap(10,15,1);
+    Map* map2 = initMap(20,20,2);
+    Map* map3 = initMap(25,25,3);
+    buildMap(map1);
+    buildMap(map2);
+    buildMap(map3);
+    currentMap = map1;
+    putElementHere(currentMap,player->position[0], player->position[1],1);
+    char result;
+    displayMap(currentMap);
     do {
+        //error = 0;
+        printf("Next move : ");
 
+        char input[100];
+        if ( !fgets( input, sizeof input, stdin ) )
+        {
+            //error = 1;
+            printf("error");
+        }
+        else
+        {
+            sscanf(input, "%d", &result);
+        }
+        movePlayer(player,currentMap,map1,map2,map3,result,respawnList,allMonsters);
+        //inProgress=0;
+    } while (inProgress);
         int nbToRespawn = updateTimerToRespawn(thingsToRespawn);
         if(nbToRespawn > 0){
             respawnThings(thingsToRespawn, currentMap);
         }
-    } while (inProgress);
+
+    //printf("player position x = %d / y = %d",player->position[0],player->position[1]);
+    putPortalOnMap(map1,map2,map3);
+    //player->position[0] = 0;
+    //player->position[1] = 0;
+    putElementHere(map1,player->position[0], player->position[1],1);
+
+    displayMap(map1);
 }
