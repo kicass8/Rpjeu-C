@@ -53,6 +53,8 @@ void removeFromPlayerInventory(Player* player, int index){
         if(i != index){
             player->inventory[j] = player->inventory[i];
             j++;
+        } else {
+            free(player->inventory[i]);
         }
     }
     player->inventoryNextSpace -= 1;
@@ -67,6 +69,8 @@ void removeFromPNJInventory(PNJ * pnj, int index){
         if(i != index){
             pnj->inventory[j] = pnj->inventory[i];
             j++;
+        } else {
+            free(pnj->inventory[i]);
         }
     }
     pnj->inventoryNextSpace -= 1;
@@ -1067,42 +1071,30 @@ void interactWithPNJ(PNJ* pnj, Player* player){
 }
 
 int main() {
-    /*Item allItems[] = {
+    Item allDurabilityItems[] = {
+            //Weapons
             *newItem(1,1,10,-1, -1.0, -1),
-            *newItem(2,1,10,-1, -1.0, -1),
-            *newItem(3,1,10,-1, -1.0, -1),
-            *newItem(4,1,10,-1, -1.0, -1),
-            *newItem(5,1,10,-1, -1.0, -1),
-            *newItem(6,1,10,-1, -1.0, -1),
-            *newItem(7,1,10,-1, -1.0, -1),
-            *newItem(8,1,10,-1, -1.0, -1),
-            *newItem(9,1,10,-1, -1.0, -1),
-            *newItem(10,1,10,-1, -1.0, -1),
-            *newItem(11,1,10,-1, -1.0, -1),
-            *newItem(12,1,10,-1, -1.0, -1),
-            *newItem(13,1,10,-1, -1.0, -1),
-            *newItem(14,1,10,-1, -1.0, -1),
-            *newItem(15,1,10,-1, -1.0, -1),
-            *newItem(16,1,10,-1, -1.0, -1),
-            *newItem(17,1,10,-1, -1.0, -1),
-            *newItem(18,1,10,-1, -1.0, -1),
-            *newItem(19,1,10,-1, -1.0, -1),
-            *newItem(20,1,10,-1, -1.0, -1),
-            *newItem(21,1,10,-1, -1.0, -1),
-            *newItem(22,1,10,-1, -1.0, -1),
-            *newItem(23,1,10,-1, -1.0, -1),
-            *newItem(24,1,10,-1, -1.0, -1),
-            *newItem(25,1,10,-1, -1.0, -1),
-            *newItem(26,1,10,-1, -1.0, -1),
-            *newItem(27,1,10,-1, -1.0, -1),
-            *newItem(28,1,10,-1, -1.0, -1),
-            *newItem(29,1,10,-1, -1.0, -1),
-            *newItem(30,1,10,-1, -1.0, -1),
-            *newItem(31,1,10,-1, -1.0, -1),
-            *newItem(32,1,10,-1, -1.0, -1),
-            *newItem(33,1,10,-1, -1.0, -1),
-            *newItem(34,1,10,-1, -1.0, -1),
-    }*/
+            *newItem(8,2,10,-1, -1.0, -1),
+            *newItem(9,3,8,-1, -1.0, -1),
+            *newItem(10,4,5,-1, -1.0, -1),
+            *newItem(19,5,10,-1, -1.0, -1),
+            *newItem(20,7,8,-1, -1.0, -1),
+            *newItem(21,10,5,-1, -1.0, -1),
+            *newItem(30,10,10,-1, -1.0, -1),
+            *newItem(31,15,8,-1, -1.0, -1),
+            *newItem(32,20,5,-1, -1.0, -1),
+            //Tools
+            *newItem(2,-1,10,-1, -1.0, -1),
+            *newItem(3,-1,10,-1, -1.0, -1),
+            *newItem(4,-1,10,-1, -1.0, -1),
+            *newItem(12,-1,10,-1, -1.0, -1),
+            *newItem(13,-1,10,-1, -1.0, -1),
+            *newItem(14,-1,10,-1, -1.0, -1),
+            *newItem(23,-1,10,-1, -1.0, -1),
+            *newItem(24,-1,10,-1, -1.0, -1),
+            *newItem(25,-1,10,-1, -1.0, -1)
+    };
+
     Player* player = initPlayer();
     thingToRespawn* thingsToRespawn = NULL;
     Monster allMonsters[10];
@@ -1190,5 +1182,8 @@ int main() {
     //putElementHere(map1,5,5,2000);
     //displayMap(map1);*/
     printf("Welcome to our game! You are represented on the map by a 1, use z, q, s, d to move around, we hope you'll have fun!");
+    int inProgress = 1;
+    do {
 
+    } while (inProgress);
 }
