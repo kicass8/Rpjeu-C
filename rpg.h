@@ -55,7 +55,7 @@ struct thingToRespawn {
     int type;
     int x;
     int y;
-    int map;
+    int* map;
     int turnsUntilRespawn;
     struct thingToRespawn* next;
 };
@@ -76,12 +76,12 @@ struct Map {
 };
 typedef struct Map Map;
 
-thingToRespawn* addToRespawnList(thingToRespawn* list,int type, int x, int y, int map, int nbturns);
-void fight(Player player, Monster monster);
-int weaponCheck(Player player);
-int changeWeapon(Player player);
-int attack(Player player, Monster monster, int index);
-void heal(Player player);
+thingToRespawn* addToRespawnList(thingToRespawn* list,int type, int x, int y, int* map, int nbturns);
+void fight(Player* player, Monster* monster);
+int weaponCheck(Player* player);
+int changeWeapon(Player* player);
+int attack(Player* player, Monster* monster, int index);
+void heal(Player* player);
 PNJ* newPNJ();
 Monster* newMonster(char* name, int id, int HP, int attack, int expDrop);
 Item* newItem(int id, int damage, int durability, int quantity, float protection, int heal);
@@ -105,8 +105,9 @@ int findPlantTool(Player* player, int resource);
 void addResourseToInventory(int resource, Player* player, int nbResource);
 void dropResources(int resource, Player* player);
 void interactWithPNJ(PNJ* pnj, Player* player);
-void checkMapElement(Map* pMap, Player* player, int x, int y);
+void checkMapElement(Map* pMap, Player* player, int x, int y, thingToRespawn* respawnList);
 void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3);
 int getRandomNum(int limit);
 void putElementHere(Map* pMap, int x, int y, int elementID);
+void movePlayer(Player* player, Map* pMap, char move, thingToRespawn* respawnList);
 #endif //PROJET_C_RPG_H

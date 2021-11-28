@@ -78,7 +78,7 @@ void removeFromPNJInventory(PNJ * pnj, int index){
 }*/
 
 //adds a thing to respawn to the respawn linked list
-thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, int map, int nbturns){
+thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, int* map, int nbturns){
     thingToRespawn* newThing = malloc(sizeof(thingToRespawn));
     newThing->type = type;
     newThing->x = x;
@@ -96,7 +96,7 @@ thingToRespawn* addToRespawnList(thingToRespawn* head, int type, int x, int y, i
     return newThing;
 }
 
-void fight(Player player, Monster monster){
+void fight(Player* player, Monster* monster){
     int ongoing = 1;
     int weaponIndex;
     int countWeapon = weaponCheck(player);
@@ -109,8 +109,8 @@ void fight(Player player, Monster monster){
         int choice = 0;
         int error = 0;
         do {
-            weaponIndex != -1? printf("Weapon: Damage: %d, Durability: %d\n", player.inventory[weaponIndex]->damage, player.inventory[weaponIndex]->durability) : printf("You have no weapons, run!");
-            printf("Your hitpoints: %d, Fighting against: %s\n Select an action:\n - Type 1 to attack\n - Type 2 to use a potion\n - Type 3 to attempt to run away\n", player.HP, monster.name);
+            weaponIndex != -1? printf("Weapon: Damage: %d, Durability: %d\n", player->inventory[weaponIndex]->damage, player->inventory[weaponIndex]->durability) : printf("You have no weapons, run!");
+            printf("Your hitpoints: %d, Fighting against: %s\n Select an action:\n - Type 1 to attack\n - Type 2 to use a potion\n - Type 3 to attempt to run away\n", player->HP, monster->name);
             scanf("%d", &choice);
             error = 0;
             switch (choice) {
@@ -138,40 +138,40 @@ void fight(Player player, Monster monster){
     } while (ongoing);
 }
 
-int weaponCheck(Player player){
+int weaponCheck(Player* player){
     int count = 0;
-    for (int i = 0; i < player.inventoryNextSpace; ++i) {
-        if(player.inventory[i]->damage != 1){
+    for (int i = 0; i < player->inventoryNextSpace; ++i) {
+        if(player->inventory[i]->damage != 1){
             count++;
         }
     }
     return count;
 }
 
-int changeWeapon(Player player){
+int changeWeapon(Player* player){
     int result = 0;
     int error = 0;
     do {
         error = 0;
         printf("Please choose one of your weapons to equip by typing the corresponding number:\n");
-        for (int i = 0; i < player.inventoryNextSpace; ++i) {
-            if(player.inventory[i]->damage != 1){
-                printf(" - Damage: %d, Durability: %d . Type %d\n", player.inventory[i]->damage, player.inventory[i]->durability, i);
+        for (int i = 0; i < player->inventoryNextSpace; ++i) {
+            if(player->inventory[i]->damage != 1){
+                printf(" - Damage: %d, Durability: %d . Type %d\n", player->inventory[i]->damage, player->inventory[i]->durability, i);
             }
         }
         scanf("%d", &result);
-        if(player.inventory[result]->damage == -1 || result < 0 || result > 9){
+        if(player->inventory[result]->damage == -1 || result < 0 || result > 9){
             error = 1;
         }
     } while (error != 1);
     return result;
 }
 
-int attack(Player player, Monster monster, int index){
+int attack(Player* player, Monster* monster, int index){
 
 }
 
-void heal(Player player){
+void heal(Player* player){
 
 }
 
@@ -341,9 +341,12 @@ int** updateMap(int** map,mapElement* element,int x, int y)
     }
 }
 
-void checkMapElement(Map* pMap, Player* player, int x, int y){
+void checkMapElement(Map* pMap, Player* player, int x, int y,thingToRespawn* respawnList){
     int element = pMap->map[x][y]; //element stored in the player's future position
     int newPosition[2] = {x,y};
+
+    Monster* bossMonster;
+    bossMonster = newMonster("Boss",99,1000,150,350); //must review values
 
     switch(element){
         case -3 : //third zone's portal
@@ -372,6 +375,7 @@ void checkMapElement(Map* pMap, Player* player, int x, int y){
             break;
         case 99 :
             //engage fight with boss
+            fight(player, bossMonster);
             break;
         default:
             //engage fight with monster
@@ -410,6 +414,20 @@ int getRandomNum(int limit)
 void putElementHere(Map* pMap,int x, int y,int elementID)
 {
     pMap->map[x][y] = elementID;
+}
+
+void movePlayer(Player* player,  Map* pMap, char movement, thingToRespawn* respawnList)
+{
+    switch (movement) {
+        case 'z' :
+            checkMapElement(pMap,player,player->position[0],player->position[1]+1,respawnList);break;
+        case 'q' :
+            checkMapElement(pMap,player,player->position[0]-1,player->position[1],respawnList);break;
+        case 's' :
+            checkMapElement(pMap,player,player->position[0],player->position[1]-1,respawnList);break;
+        case 'd' :
+            checkMapElement(pMap,player,player->position[0]+1,player->position[1],respawnList);break;
+    }
 }
 /*
 //Add the resource to the player inventory and change the position of the player if it's possible
@@ -899,7 +917,7 @@ int main() {
     printf("map3 faite\n");
 
     putPortalOnMap(map1,map2,map3);
-    putPlayerOnMap(map1,player);
+    putElementHere(map1,player->position[0],player->position[1],1);
 
     printf("Test d'initialisation des maps\n\n");
     printf("Map niveau 1\n");
