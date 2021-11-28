@@ -500,6 +500,20 @@ void putElementHere(Map* pMap,int x, int y,int elementID)
 {
     pMap->map[x][y] = elementID;
 }
+
+void movePlayer(Player* player,  Map* pMap, char movement, thingToRespawn* respawnList)
+{
+    switch (movement) {
+        case 'z' :
+            checkMapElement(pMap,player,player->position[0],player->position[1]+1,respawnList);break;
+        case 'q' :
+            checkMapElement(pMap,player,player->position[0]-1,player->position[1],respawnList);break;
+        case 's' :
+            checkMapElement(pMap,player,player->position[0],player->position[1]-1,respawnList);break;
+        case 'd' :
+            checkMapElement(pMap,player,player->position[0]+1,player->position[1],respawnList);break;
+    }
+}
 /*
 //Add the resource to the player inventory and change the position of the player if it's possible
 int getResourse(Player* player, int resource, int** map) {
@@ -517,7 +531,7 @@ int getResourse(Player* player, int resource, int** map) {
     } else {
         printf("You don't have the right tool for that.");
         return res;
-        
+
     }
 }
 
@@ -765,7 +779,7 @@ int findPlantTool(Player* player, int resource){
         default:
             break;
     }
-    
+
     return toolPosition;
 }
 

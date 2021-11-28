@@ -113,4 +113,5 @@ void checkMapElement(Map* pMap, Player* player, int x, int y);
 void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3);
 int getRandomNum(int limit);
 void putElementHere(Map* pMap, int x, int y, int elementID);
+void movePlayer(Player* player,  Map* pMap, char movement, thingToRespawn* respawnList);
 #endif //PROJET_C_RPG_H
