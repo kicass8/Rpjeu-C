@@ -429,7 +429,7 @@ int** updateMap(int** map,mapElement* element,int x, int y)
     }
 }
 
-void checkMapElement(Map* pMap, Player* player, int x, int y){
+void checkMapElement(Map* pMap, Player* player, int x, int y, thingToRespawn* respawnList){
     int element = pMap->map[x][y]; //element stored in the player's future position
     int newPosition[2] = {x,y};
 
