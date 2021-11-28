@@ -421,8 +421,8 @@ Player* initPlayer(){
     player->position[1] = 0;
     addToPlayerInventory(player, newItem(1, 1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(2, -1, 10, -1, -1, -1));
+    addToPlayerInventory(player, newItem(4, -1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(3, -1, 10, -1, -1, -1));
-    addToPlayerInventory(player, newItem(7, -1, -1, 5, -1, -1));
     for (int i = 4; i < 10; ++i) {
         player->inventory[i] = NULL;
     }
@@ -787,7 +787,7 @@ int isResourceExistInInventory(Player* player, int resource, int nbResource){
     for(int i = 0 ; i < player->inventoryNextSpace ; i++){
         if(player->inventory[i]->id == resource){
             if(player->inventory[i]->quantity < 20){
-                while(player->inventory[i]->quantity < 20){
+                while(player->inventory[i]->quantity < 20 && nbResource != 0){
                     player->inventory[i]->quantity++;
                     nbResource--;
 
@@ -1159,6 +1159,7 @@ void showPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems){
 void storeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems){
     int choosenItem;
     char input[2];
+
     fflush(stdin);
     if(player->inventoryNextSpace != 0) {
         printf("\nchoose an item to store :\n");
@@ -1193,41 +1194,43 @@ void storeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems){
 // Take a chosen item from the PNJ inventory
 void takeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems) {
     int choosenItem;
-    int checkinventory;
+    int checkinventory = checkInventory(player);
     char input[2];
     fflush(stdin);
-    for (int i = 0; i < pnj->inventoryNextSpace; i++) {
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id,
-               pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
-    }
-    if ( !fgets( input, sizeof input, stdin ) )
-    {
-        printf("Please enter a correct value");
-    }
-    else
-    {
-        sscanf(input, "%d", &choosenItem);
-    }
-    if (choosenItem >= 0 && choosenItem < pnj->inventoryNextSpace) {
-        if ((pnj->inventory[choosenItem]->id >= 5 && pnj->inventory[choosenItem]->id <= 7) || (pnj->inventory[choosenItem]->id >= 16 && pnj->inventory[choosenItem]->id <= 18) || (pnj->inventory[choosenItem]->id >= 27 && pnj->inventory[choosenItem]->id <= 30)) {
-            addResourseToInventory(pnj->inventory[choosenItem]->id, player,
-                                   pnj->inventory[choosenItem]->quantity); // Call the function to add a resource to the player inventory
+        for (int i = 0; i < pnj->inventoryNextSpace; i++) {
+            printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id,
+                   pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
+        }
+        if (!fgets(input, sizeof input, stdin)) {
+            printf("Please enter a correct value");
         } else {
-            checkinventory = checkInventory(player);
-            if(checkinventory == 0){
-                addToPlayerInventory(player, newItem(pnj->inventory[choosenItem]->id, pnj->inventory[choosenItem]->damage,
-                                                     pnj->inventory[choosenItem]->durability,
-                                                     pnj->inventory[choosenItem]->quantity,
-                                                     pnj->inventory[choosenItem]->protection, pnj->inventory[choosenItem]->heal));
+            sscanf(input, "%d", &choosenItem);
+        }
+        if (choosenItem >= 0 && choosenItem < pnj->inventoryNextSpace) {
+            if ((pnj->inventory[choosenItem]->id >= 5 && pnj->inventory[choosenItem]->id <= 7) ||
+                (pnj->inventory[choosenItem]->id >= 16 && pnj->inventory[choosenItem]->id <= 18) ||
+                (pnj->inventory[choosenItem]->id >= 27 && pnj->inventory[choosenItem]->id <= 30)) {
+                addResourseToInventory(pnj->inventory[choosenItem]->id, player,
+                                       pnj->inventory[choosenItem]->quantity); // Call the function to add a resource to the player inventory
             } else {
-                printf("your inventory is full");
+                checkinventory = checkInventory(player);
+                if (checkinventory == 0) {
+                    addToPlayerInventory(player,
+                                         newItem(pnj->inventory[choosenItem]->id, pnj->inventory[choosenItem]->damage,
+                                                 pnj->inventory[choosenItem]->durability,
+                                                 pnj->inventory[choosenItem]->quantity,
+                                                 pnj->inventory[choosenItem]->protection,
+                                                 pnj->inventory[choosenItem]->heal));
+                    removeFromPNJInventory(pnj, choosenItem);
+                } else {
+                    printf("your inventory is full");
+                }
             }
         }
-        removeFromPNJInventory(pnj, choosenItem);
-    }
+
     interactWithPNJ(pnj, player, allDurabilityItems);
 }
-
+// Repair all items of the player
 void repairItem(Player* player, Item* allDurabilityItems){
     for(int i = 0 ; i < player->inventoryNextSpace ; i++){
         if(player->inventory[i]->durability != 1){
@@ -1359,11 +1362,18 @@ int main() {
     interactWithPNJ(pnj1, player, allDurabilityItems);
     Map* map1 = initMap(10,15,1);
     getResourse(player, 3, map1, thingsToRespawn, 5, 5);
+    getResourse(player, 4, map1, thingsToRespawn, 6, 6);
+    getResourse(player, 5, map1, thingsToRespawn, 7, 7);
+    getResourse(player, 5, map1, thingsToRespawn, 7, 7);
+    getResourse(player, 5, map1, thingsToRespawn, 7, 7);
+    getResourse(player, 5, map1, thingsToRespawn, 7, 7);
+    getResourse(player, 5, map1, thingsToRespawn, 7, 7);
+    getResourse(player, 5, map1, thingsToRespawn, 7, 7);
     for (int i = 0; i < player->inventoryNextSpace; ++i) {
         printf("Item id: %d, damage: %d, durability: %d, Quantity: %d\n", player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
     }
     //printf("\n---------------------------\n");
-
+    interactWithPNJ(pnj1, player, allDurabilityItems);
     //showPNJInventory(pnj1);
 
     /*printf("\n---------------------------\n");
