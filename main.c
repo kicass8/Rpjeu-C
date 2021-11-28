@@ -514,7 +514,6 @@ void movePlayer(Player* player,  Map* pMap, char movement, thingToRespawn* respa
             checkMapElement(pMap,player,player->position[0]+1,player->position[1],respawnList);break;
     }
 }
-/*
 //Add the resource to the player inventory and change the position of the player if it's possible
 int getResourse(Player* player, int resource, int** map) {
     //  Check if the inventory is full
@@ -526,12 +525,32 @@ int getResourse(Player* player, int resource, int** map) {
 
     res = useTool(player, resource, findTool(player, resource));
     if (res != -1) { // Look if the player have the tool or not
-       dropResources(resource, player);
+        dropResources(resource, player);
+        //addToRespawnList(); // AJOUTER A LA LISTE DE RESPAWN
         return res;
     } else {
         printf("You don't have the right tool for that.");
         return res;
 
+    }
+}
+
+int checkResource(Player* player, int resource){
+    if(resource >= 3 && resource <= 5){
+
+    }
+    if(resource >= 6 && resource <= 8){
+
+    }
+    if(resource >= 9 && resource <= 11){
+
+    }
+}
+
+int findAxe(Player* player, int resource){
+    Item* keepItem;
+    for(int i = 0; i < player->inventoryNextSpace ; i++){
+        // switch (resource) case 3: toolPosition = player->inventory[id] case 6 : toolPosition = player->inventory[id]
     }
 }
 
@@ -580,7 +599,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 5 :
                 player->inventory[toolPosition]->durability *= 0.10;
                 if (player->inventory[toolPosition]->durability <= 0) {
-                      player->inventory[toolPosition]->id = -1; // remove the tool from the inventory if the durability is equal to 0
+                    player->inventory[toolPosition]->id = -1; // remove the tool from the inventory if the durability is equal to 0
                 }
                 return 1;
             case 6 :
@@ -588,7 +607,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 8 :
                 player->inventory[toolPosition]->durability *= 0.20;
                 if (player->inventory[toolPosition]->durability <= 0) {
-                      player->inventory[toolPosition]->id = -1;
+                    player->inventory[toolPosition]->id = -1;
                 }
                 return 1;
             case 9 :
@@ -596,7 +615,7 @@ int useTool(Player* player, int resource, int toolPosition){
             case 11 :
                 player->inventory[toolPosition]->durability *= 0.40;
                 if (player->inventory[toolPosition]->durability <= 0) {
-                      player->inventory[toolPosition]->id = -1;
+                    player->inventory[toolPosition]->id = -1;
                 }
                 return 1;
             default:
@@ -604,7 +623,7 @@ int useTool(Player* player, int resource, int toolPosition){
         }
     }
 }
-
+/*
 // PAS ENCORE AJOUTER LES POTOTYPE
 // Voir comment faire pour chercher la plus petite durablitité PAS SUR
 //int findLowerDurabilityTool(Player* player, int resource){}
@@ -844,46 +863,52 @@ int findTool(Player* player, int resource){
 
     return toolPosition;
 }
+ */
 
 // Display the current PNJ inventory
 void showPNJInventory(PNJ* pnj){
     for(int i = 0 ; i < pnj->inventoryNextSpace ; i++){
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i].id, pnj->inventory[i].damage, pnj->inventory[i].durability, pnj->inventory[i].quantity);
+        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id, pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
     }
 }
 
-
+// Store an item in the pnj inventory
 void storeInPNJInventory(PNJ* pnj, Player* player){
     int choosenItem;
     for(int i = 0 ; i < player->inventoryNextSpace ; i++){
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i].id, player->inventory[i].damage, player->inventory[i].durability, player->inventory[i].quantity);
+        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
     }
     scanf("%d", &choosenItem);
     if(choosenItem >= 0 && choosenItem < player->inventoryNextSpace){
         pnj->inventory[pnj->inventoryNextSpace] = player->inventory[choosenItem];
-        //player->inventory[choosenItem] = -1;
+        addToPNJInventory(pnj, newItem(player->inventory[choosenItem]->id, player->inventory[choosenItem]->damage,
+                                       player->inventory[choosenItem]->durability,
+                                       player->inventory[choosenItem]->quantity,
+                                       player->inventory[choosenItem]->protection, pnj->inventory[choosenItem]->heal));
+        removeFromPlayerInventory(player, choosenItem);
     }
 }
 
-// BESOIN DE SHOWINVENTORYPNJ ou pas besoin si on affiche ici ?
+
 // Take a chosen item from the PNJ inventory
 void takeInPNJInventory(PNJ* pnj, Player* player) {
     int choosenItem;
-    for (int i = 0; i < player->inventoryNextSpace; i++) {
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i].id,
-               pnj->inventory[i].damage, pnj->inventory[i].durability, pnj->inventory[i].quantity);
+    for (int i = 0; i < pnj->inventoryNextSpace; i++) {
+        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id,
+               pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
     }
     scanf("%d", &choosenItem);
     if (choosenItem >= 0 && choosenItem < pnj->inventoryNextSpace) {
-        if (pnj->inventory[choosenItem].id >= 3 && pnj->inventory[choosenItem].id <= 11) {
-            addResourseToInventory(pnj->inventory[choosenItem].id, player,
-                                   pnj->inventory[choosenItem].quantity); // Call the function to add a resource to the player inventory
+        if (pnj->inventory[choosenItem]->id >= 3 && pnj->inventory[choosenItem]->id <= 11) {
+            addResourseToInventory(pnj->inventory[choosenItem]->id, player,
+                                   pnj->inventory[choosenItem]->quantity); // Call the function to add a resource to the player inventory
+        } else {
+            addToPlayerInventory(player, newItem(pnj->inventory[choosenItem]->id, pnj->inventory[choosenItem]->damage,
+                                                 pnj->inventory[choosenItem]->durability,
+                                                 pnj->inventory[choosenItem]->quantity,
+                                                 pnj->inventory[choosenItem]->protection, pnj->inventory[choosenItem]->heal));
         }
-        addToPlayerInventory(player, newItem(pnj->inventory[choosenItem].id, pnj->inventory[choosenItem].damage,
-                                             pnj->inventory[choosenItem].durability,
-                                             pnj->inventory[choosenItem].quantity,
-                                             pnj->inventory[choosenItem].protection, pnj->inventory[choosenItem].heal));
-        //; free(pnj->inventory[choosenItem]);
+        removeFromPNJInventory(pnj, choosenItem);
     }
 }
 
@@ -891,13 +916,13 @@ void repairItem(Player* player){
     int chosenItem;
     printf("choose an item to repair");
     for(int i = 0 ; i < player->inventoryNextSpace ; i++) {
-        if (player->inventory[i].durability != -1) {
-            printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i].id, player->inventory[i].damage, player->inventory[i].durability, player->inventory[i].quantity);
+        if (player->inventory[i]->durability != -1) {
+            printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
         }
     }
     scanf("%d", chosenItem);
-    if(player->inventory[chosenItem].durability != -1 && chosenItem >= 0 && chosenItem < player->inventoryNextSpace) {
-        player->inventory[chosenItem].durability = 10; // FAIRE LA DURABILITER EN FONCTION DE L'ITEM
+    if(player->inventory[chosenItem]->durability != -1 && chosenItem >= 0 && chosenItem < player->inventoryNextSpace) {
+        player->inventory[chosenItem]->durability = 10; // FAIRE LA DURABILITER EN FONCTION DE L'ITEM
     }
 }
 
@@ -917,7 +942,7 @@ void usePNJ(PNJ* pnj, Player* player, int choice){
             interactWithPNJ(pnj, player);
             break;
         case 3:
-        //    displayAvailableCraft();
+            //    displayAvailableCraft();
             interactWithPNJ(pnj, player);
             break;
         case 4:
@@ -939,7 +964,6 @@ void interactWithPNJ(PNJ* pnj, Player* player){
     scanf("\n%d", &choice);
     usePNJ(pnj, player, choice);
 }
-*/
 
 int main() {
     Player* player = initPlayer();
