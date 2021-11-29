@@ -2,8 +2,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/Projet_C.dir/main.c.obj"
   "Projet_C.exe"
   "Projet_C.exe.manifest"
+  "Projet_C.lib"
   "Projet_C.pdb"
-  "libProjet_C.dll.a"
 )
 
 # Per-language clean rules from dependency scanning.
