@@ -156,7 +156,7 @@ int fight(Player* player, Monster* monster){
     }
     while (ongoing == 1) {
         ongoing = playerTurn(player, monster, weaponIndex);
-        if(player->inventory[weaponIndex]->durability == 0 && weaponIndex != -1){
+        if(weaponIndex != -1 && player->inventory[weaponIndex]->durability == 0){
             removeFromPlayerInventory(player, weaponIndex);
             int countWeapon = weaponCheck(player);
             if(countWeapon != 0){
@@ -213,7 +213,7 @@ int playerTurn(Player* player, Monster* monster, int weaponIndex){
     int choice = 0;
     int error = 0;
     do {
-        weaponIndex != -1? printf("Weapon: Damage: %d, Durability: %d\n", player->inventory[weaponIndex]->damage, player->inventory[weaponIndex]->durability) : printf("You have no weapons, run!");
+        weaponIndex != -1? printf("Weapon: Damage: %d, Durability: %d\n", player->inventory[weaponIndex]->damage, player->inventory[weaponIndex]->durability) : printf("You have no weapons, run!\n");
         printf("Your hitpoints: %d, Fighting against: %s who has %d HP\n Select an action:\n - Type 1 to attack\n - Type 2 to use a potion\n - Type 3 to attempt to run away\n", player->HP, monster->name, monster->HP);
         char input[100];
         if ( !fgets( input, sizeof input, stdin ) )
@@ -230,6 +230,7 @@ int playerTurn(Player* player, Monster* monster, int weaponIndex){
                 if(weaponIndex == -1){
                     printf("You cannot fight with your fists alone!\n");
                     error = 1;
+                    break;
                 } else {
                     outcome = attack(player, monster, weaponIndex);
                     break;
@@ -420,7 +421,7 @@ Player* initPlayer(){
     //int position[2] = {0, 0};
     player->position[0] = 0;
     player->position[1] = 0;
-    addToPlayerInventory(player, newItem(1, 1, 10, -1, -1, -1));
+    addToPlayerInventory(player, newItem(1, 150, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(2, -1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(4, -1, 10, -1, -1, -1));
     addToPlayerInventory(player, newItem(3, -1, 10, -1, -1, -1));
@@ -463,28 +464,35 @@ void displayMap(Map* pMap)
     }
 }
 //Creates elements of the map
-mapElement* newMapElement(int id)
+/*mapElement* newMapElement(int id)
 {
     mapElement* element = malloc(sizeof(mapElement));
 
     element->id = id;
 
     return element;
-}
+}*/
 
 
 //updating the map
-int** updateMap(int** map,mapElement* element,int x, int y)
+/*int** updateMap(int** map,mapElement* element,int x, int y)
 {
     map[x][y]=element->id;
     return(map);
-}
+}*/
 
 //building a map
 /*Map**/void buildMap(Map* pMap)
 {
     int x;
     int y;
+    int randomMonster;
+
+    //Test pnj
+    pMap->map[2][0]=2;
+
+    //test boss
+    pMap->map[3][1]=99;
 
     //monsters positions
     for(int i=0;i<10;i++)
@@ -494,10 +502,47 @@ int** updateMap(int** map,mapElement* element,int x, int y)
 
         if(pMap->map[x][y]==0)
         {
-            pMap->map[x][y]=12;
+            randomMonster = getRandomNum(2);
+            if(pMap->level==1)
+            {
+                switch (randomMonster) {
+                    case 0:
+                        pMap->map[x][y] = 12;
+                        break;
+                    case 1:
+                        pMap->map[x][y] = 13;
+                        break;
+                    case 2:
+                        pMap->map[x][y] = 14;
+                        break;
+                }
+            } else if(pMap->level==2) {
+                switch (randomMonster) {
+                    case 0:
+                        pMap->map[x][y] = 15;
+                        break;
+                    case 1:
+                        pMap->map[x][y] = 16;
+                        break;
+                    case 2:
+                        pMap->map[x][y] = 17;
+                        break;
+                }
+            } else {
+                switch (randomMonster) {
+                    case 0:
+                        pMap->map[x][y] = 18;
+                        break;
+                    case 1:
+                        pMap->map[x][y] = 19;
+                        break;
+                    case 2:
+                        pMap->map[x][y] = 20;
+                        break;
+                }
+            }
         }
     }
-
     //rocks positions
     for(int i=0;i<3;i++)
     {
@@ -574,10 +619,11 @@ int** updateMap(int** map,mapElement* element,int x, int y)
     }
 }
 
-void checkMapElement(Map* pMap,Map* pMap1, Map* pMap2, Map* pMap3, Player* player, int x, int y, thingToRespawn* respawnList, Monster* allMonsters, int* ongoing){
+void checkMapElement(Map* pMap,Map* pMap1, Map* pMap2, Map* pMap3, Player* player, int x, int y, thingToRespawn* respawnList, Monster* allMonsters, int* ongoing, PNJ* pnj, Item* allDurabilityItems){
     int element = pMap->map[x][y]; //element stored in the player's future position
     int resultFight;
     int collectResult;
+    int monsterHP;
 
     switch(element){
         case -3 : passPortal(player, pMap3);
@@ -593,7 +639,7 @@ void checkMapElement(Map* pMap,Map* pMap1, Map* pMap2, Map* pMap3, Player* playe
             putElementHere(pMap,x,y,1);
             break;
         case 2 : //interact with PNJ
-            //instructions
+            interactWithPNJ(pnj, player, allDurabilityItems);
             break;
         case 3 :
         case 4 :
@@ -616,18 +662,19 @@ void checkMapElement(Map* pMap,Map* pMap1, Map* pMap2, Map* pMap3, Player* playe
             break;
         case 99 :
             //engage fight with boss
+            monsterHP = allMonsters[9].HP;
             resultFight = fight(player, &allMonsters[9]);
+            allMonsters[9].HP = monsterHP;
             switch (resultFight) {
-                case 0: *ongoing = 0; //Player died
+                case 0:
+                    *ongoing = 0;
+                    break;//Player died
                 case 2:
                     //Player fled
                     break;
                 case 3 :
-                    addToRespawnList(respawnList,pMap->map[x][y],x,y,pMap->level,15);
-                    player->position[0] = x;
-                    player->position[1] = y;
-                    addToRespawnList(respawnList,0,x,y,pMap->level,2);
-                    putElementHere(pMap,x,y,1); //monster has been slain
+                    printf("Congratulations on beating the game!\n");
+                    *ongoing = 0; //monster has been slain
                     break;
                 case -1 :
                     printf("An error has occur. Sorry for the inconvenience");
@@ -640,9 +687,13 @@ void checkMapElement(Map* pMap,Map* pMap1, Map* pMap2, Map* pMap3, Player* playe
             //engage fight with monster
             for(int i=0;i<10;i++){
                 if(allMonsters[i].id==element){
+                    monsterHP = allMonsters[i].HP;
                     resultFight = fight(player,&allMonsters[i]);
+                    allMonsters[i].HP = monsterHP;
                     switch (resultFight) {
-                        case 0: *ongoing = 0; //Player died
+                        case 0:
+                            *ongoing = 0; //Player died
+                            break;
                         case 2: //Player fled
                             break;
                         case 3 : //monster has been slain
@@ -697,33 +748,33 @@ void putElementHere(Map* pMap,int x, int y,int elementID)
     pMap->map[x][y] = elementID;
 }
 
-int movePlayer(Player* player,  Map* pMap, Map* pMap1, Map* pMap2, Map* pMap3,char movement,thingToRespawn* respawnList, Monster* allMonster, int* ongoing)
+int movePlayer(Player* player,  Map* pMap, Map* pMap1, Map* pMap2, Map* pMap3,char movement,thingToRespawn* respawnList, Monster* allMonster, int* ongoing, PNJ* pnj, Item* allDurabilityItems)
 {
     switch (movement) {
         case 'z' :
             if((player->position[0]>=0) && (player->position[0]<=pMap->width) &&(player->position[1]>=0) && (player->position[1]<=pMap->height)){
-                checkMapElement(pMap,pMap1, pMap2, pMap3, player,player->position[0]-1,player->position[1],respawnList,allMonster, ongoing);
+                checkMapElement(pMap,pMap1, pMap2, pMap3, player,player->position[0]-1,player->position[1],respawnList,allMonster, ongoing, pnj, allDurabilityItems);
                 return(1);
             }else{
                 return(-1);
             }
         case 'q' :
             if((player->position[0]>=0) && (player->position[0]<=pMap->width) &&(player->position[1]>=0) && (player->position[1]<=pMap->height)){
-                checkMapElement(pMap,pMap1, pMap2, pMap3,player,player->position[0],player->position[1]-1,respawnList,allMonster, ongoing);
+                checkMapElement(pMap,pMap1, pMap2, pMap3,player,player->position[0],player->position[1]-1,respawnList,allMonster, ongoing, pnj, allDurabilityItems);
                 return(1);
             }else{
                 return(-1);
             }
         case 's' :
             if((player->position[0]>=0) && (player->position[0]<=pMap->width) &&(player->position[1]>=0) && (player->position[1]<=pMap->height)){
-                checkMapElement(pMap,pMap1, pMap2, pMap3,player,player->position[0]+1,player->position[1],respawnList,allMonster, ongoing);
+                checkMapElement(pMap,pMap1, pMap2, pMap3,player,player->position[0]+1,player->position[1],respawnList,allMonster, ongoing, pnj, allDurabilityItems);
                 return(1);
             }else{
                 return(-1);
             }
         case 'd' :
             if((player->position[0]>=0) && (player->position[0]<=pMap->width) &&(player->position[1]>=0) && (player->position[1]<=pMap->height)){
-                checkMapElement(pMap,pMap1, pMap2, pMap3,player,player->position[0],player->position[1]+1,respawnList, allMonster, ongoing);
+                checkMapElement(pMap,pMap1, pMap2, pMap3,player,player->position[0],player->position[1]+1,respawnList, allMonster, ongoing, pnj, allDurabilityItems);
                 return(1);
             }else{
                 return(-1);
@@ -1174,18 +1225,21 @@ int findTool(Player* player, int resource){
 
 // Display the current PNJ inventory
 void showPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems){
-    for(int i = 0 ; i < pnj->inventoryNextSpace ; i++){
-        printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id, pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
+    if(pnj->inventoryNextSpace != 0){
+        for(int i = 0 ; i < pnj->inventoryNextSpace ; i++){
+            printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id, pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
+        }
+        interactWithPNJ(pnj, player, allDurabilityItems);
+    } else {
+        printf("The inventory is empty\n");
     }
-    interactWithPNJ(pnj, player, allDurabilityItems);
 }
 
 // Store an item in the pnj inventory
 void storeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems){
     int choosenItem;
-    char input[2];
+    char input[1024];
 
-    fflush(stdin);
     if(player->inventoryNextSpace != 0) {
         printf("\nchoose an item to store :\n");
         for (int i = 0; i < player->inventoryNextSpace; i++) {
@@ -1193,19 +1247,21 @@ void storeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems){
                    player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
         }
 
+        //scanf("%c");
+
         if (!fgets(input, sizeof input, stdin)) {
             printf("Please enter a correct value");
             storeInPNJInventory(pnj, player, allDurabilityItems);
         } else {
-            sscanf(input, "%d", &choosenItem);
+            sscanf(input, "%d", &choosenItem); //Ajout gestion erreur
         }
         if (choosenItem >= 0 && choosenItem < player->inventoryNextSpace) {
-            pnj->inventory[pnj->inventoryNextSpace] = player->inventory[choosenItem];
+            //pnj->inventory[pnj->inventoryNextSpace] = player->inventory[choosenItem];
             addToPNJInventory(pnj, newItem(player->inventory[choosenItem]->id, player->inventory[choosenItem]->damage,
                                            player->inventory[choosenItem]->durability,
                                            player->inventory[choosenItem]->quantity,
                                            player->inventory[choosenItem]->protection,
-                                           pnj->inventory[choosenItem]->heal));
+                                           player->inventory[choosenItem]->heal));
             removeFromPlayerInventory(player, choosenItem);
             printf("\nTransfer success !\n");
         }
@@ -1220,12 +1276,15 @@ void storeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems){
 void takeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems) {
     int choosenItem;
     int checkinventory = checkInventory(player);
-    char input[2];
-    fflush(stdin);
+    char input[1024];
+    if(pnj->inventoryNextSpace != 0) {
         for (int i = 0; i < pnj->inventoryNextSpace; i++) {
             printf("(%d) Item : %d, Damage: %d, Durability: %d, Quantity: %d  \n", i, pnj->inventory[i]->id,
                    pnj->inventory[i]->damage, pnj->inventory[i]->durability, pnj->inventory[i]->quantity);
         }
+
+        //scanf("%c");
+
         if (!fgets(input, sizeof input, stdin)) {
             printf("Please enter a correct value");
         } else {
@@ -1252,7 +1311,7 @@ void takeInPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems) {
                 }
             }
         }
-
+    }
     interactWithPNJ(pnj, player, allDurabilityItems);
 }
 // Repair all items of the player
@@ -1274,48 +1333,51 @@ void usePNJ(PNJ* pnj, Player* player, int choice, Item* allDurabilityItems){
     switch (choice) {
         case 0:
             showPNJInventory(pnj, player, allDurabilityItems);
-            interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
+            //interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
             break;
         case 1:
             takeInPNJInventory(pnj, player, allDurabilityItems);
-            interactWithPNJ(pnj, player, allDurabilityItems);
+            //interactWithPNJ(pnj, player, allDurabilityItems);
             break;
         case 2:
             storeInPNJInventory(pnj, player, allDurabilityItems);
-            interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
+            //interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
             break;
         case 3:
             repairItem(player, allDurabilityItems);
-            interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
+            //interactWithPNJ(pnj, player, allDurabilityItems); // Display the PNJ menu again
             break;
         default:
             break;
     }
-
 }
 
 //  Display the menu to interact with the PNJ
 void interactWithPNJ(PNJ* pnj, Player* player, Item* allDurabilityItems){
     printf("\n Display PNJ inventory (0)\n Take an item (1) \n Store an item (2) \n Repair all items (3) \n Cancel (4)\n");
     int choice;
-    char input[2];
-    fflush(stdin);
+    char input[1024];
     if ( !fgets( input, sizeof input, stdin ) )
     {
         printf("Please enter a correct value");
-        storeInPNJInventory(pnj, player, allDurabilityItems);
+        interactWithPNJ(pnj, player, allDurabilityItems);
     }
     else
     {
         sscanf(input, "%d", &choice);
-        usePNJ(pnj, player, choice, allDurabilityItems);
+        if(choice >= 0 && choice <= 4){
+            usePNJ(pnj, player, choice, allDurabilityItems);
+        } else {
+            interactWithPNJ(pnj, player, allDurabilityItems);
+        }
     }
 }
 int main() {
     //Item allDurabilityItems[] = {};
-            //Weapons
+
 
     Item allItems[] = {
+            //Weapons
             *newItem(1,1,10,-1, -1.0, -1),
             *newItem(8,2,10,-1, -1.0, -1),
             *newItem(9,3,8,-1, -1.0, -1),
@@ -1458,6 +1520,7 @@ int main() {
     //displayMap(map1);*/
     printf("Welcome to our game! You are represented on the map by a 1, use z, q, s, d to move around, we hope you'll have fun!");
     thingToRespawn* respawnList = NULL;
+    PNJ* npc = newPNJ();
     int inProgress = 1;
     Map* currentMap;
     Map* map1 = initMap(10,15,1);
@@ -1469,6 +1532,10 @@ int main() {
     currentMap = map1;
     putElementHere(currentMap,player->position[0], player->position[1],1);
     thingToRespawn* startingPoint = addToRespawnList(respawnList, 0, 0, 0, 1, 1);
+
+    //To test the healing
+    addToPlayerInventory(player, newItem(50, -1, -1, -1, -1, 30));
+
     char result;
     displayMap(currentMap);
 
@@ -1487,12 +1554,15 @@ int main() {
         {
             sscanf(input, "%c", &result);
         }
-        movePlayer(player,currentMap,map1,map2,map3,result,startingPoint,allMonsters, &inProgress);
-        int nbToRespawn = updateTimerToRespawn(startingPoint);
-        if(nbToRespawn > 0){
-            respawnThings(startingPoint, currentMap, player);
+        movePlayer(player,currentMap,map1,map2,map3,result,startingPoint,allMonsters, &inProgress, npc, allItems);
+
+        if(inProgress != 0) {
+            int nbToRespawn = updateTimerToRespawn(startingPoint);
+            if (nbToRespawn > 0) {
+                respawnThings(startingPoint, currentMap, player);
+            }
+            displayMap(map1);
         }
-        displayMap(map1);
         /*for (int i = 0; i < player->inventoryNextSpace; ++i) {
             printf("Item id: %d, damage: %d, durability: %d, Quantity: %d\n", player->inventory[i]->id, player->inventory[i]->damage, player->inventory[i]->durability, player->inventory[i]->quantity);
         }*/

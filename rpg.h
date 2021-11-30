@@ -133,11 +133,11 @@ int isResourceExistInInventory(Player* player, int resource, int nbResource);
 void showPNJInventory(PNJ* pnj, Player* player, Item* allDurabilityItems);
 void dropResources(int resource, Player* player, Map* pMap, thingToRespawn* head, int x, int y);
 void interactWithPNJ(PNJ* pnj, Player* player, Item* allDurabilityItems);
-void checkMapElement(Map* pMap,Map* pMap1, Map* pMap2, Map* pMap3, Player* player, int x, int y, thingToRespawn* respawnList, Monster *allMonster, int* ongoing);
+void checkMapElement(Map* pMap,Map* pMap1, Map* pMap2, Map* pMap3, Player* player, int x, int y, thingToRespawn* respawnList, Monster *allMonster, int* ongoing, PNJ* pnj, Item* allDurabilityItems);
 void putPortalOnMap(Map* pmap1,Map* pmap2,Map* pmap3);
 int getRandomNum(int limit);
 void putElementHere(Map* pMap, int x, int y, int elementID);
-int movePlayer(Player* player,  Map* pMap, Map* pMap1, Map* pMap2, Map* pMap3,char movement,thingToRespawn* respawnList, Monster* allMonster, int* ongoing);
+int movePlayer(Player* player,  Map* pMap, Map* pMap1, Map* pMap2, Map* pMap3,char movement,thingToRespawn* respawnList, Monster* allMonster, int* ongoing, PNJ* pnj, Item* allDurabilityItems);
 void passPortal(Player* player, Map* destination);
 void findPortal(Player* player, int id,Map* pMap);
 #endif //PROJET_C_RPG_H
